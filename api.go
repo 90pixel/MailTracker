@@ -53,8 +53,51 @@ func main() {
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/assets", "./assets")
 	router.GET("/", func(c *gin.Context) {
+
+		curl := "curl  --url 'smtp://" + os.Getenv("HOST") + ":" + os.Getenv("SMTP_PORT") + "' --user '" + os.Getenv("SMTP_USERNAME") + ":" + os.Getenv("SMTP_PASSWORD") + "' --mail-from " + os.Getenv("SMTP_USERNAME") + " --mail-rcpt " + os.Getenv("SMTP_USERNAME") + " --upload-file - <<EOF\n" +
+			"From: My Inbox <" + os.Getenv("SMTP_USERNAME") + ">\n" +
+			"To: Your Inbox <" + os.Getenv("SMTP_USERNAME") + ">\n" +
+			"Subject: Test Mail\n" +
+			"Content-Type: multipart/alternative; boundary=\"boundary-string\"\n" +
+			"\n" +
+			"--boundary-string\n" +
+			"--boundary-string\n" +
+			"Content-Type: text/plain; charset=\"utf-8\"\n" +
+			"Content-Transfer-Encoding: quoted-printable\n" +
+			"Content-Disposition: inline\n" +
+			"\n" +
+			"Test Mail\n" +
+			"\n" +
+			"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book\n" +
+			"\n" +
+			"--boundary-string\n" +
+			"Content-Type: text/html; charset=\"utf-8\"\n" +
+			"Content-Transfer-Encoding: quoted-printable\n" +
+			"Content-Disposition: inline\n" +
+			"\n" +
+			"<!doctype html>\n" +
+			"<html>\n" +
+			"<head>\n" +
+			"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n" +
+			"</head>\n" +
+			"<body style=\"font-family: sans-serif;\">\n" +
+			"<div style=\"display: block; margin: auto; max-width: 600px;\" class=\"main\">\n" +
+			"<h1 style=\"font-size: 18px; font-weight: bold; margin-top: 20px\">Test Mail</h1>\n" +
+			"<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book</p>\n" +
+			"</div>\n" +
+			"<style>\n" +
+			".main { background-color: #EEE; }\n" +
+			"a:hover { border-left-width: 1em; min-height: 2em; }\n" +
+			"</style>\n" +
+			"</body>\n" +
+			"</html>\n" +
+			"\n" +
+			"--boundary-string--\n" +
+			"EOF"
+
 		c.HTML(http.StatusOK, "index.tmpl", gin.H{
 			"title":    "MailTracker",
+			"curl":     curl,
 			"host":     os.Getenv("HOST"),
 			"port":     os.Getenv("SMTP_PORT"),
 			"username": os.Getenv("SMTP_USERNAME"),

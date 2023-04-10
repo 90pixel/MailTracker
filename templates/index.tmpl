@@ -289,6 +289,8 @@
                             <option value="laravel">Laravel</option>
                             <option value="symfony">Symfony</option>
                             <option value="node">Node.js</option>
+                            <option value="curl">cURL</option>
+                            <option value="django">Django</option>
                         </select>
 
 
@@ -307,13 +309,22 @@ MAIL_ENCRYPTION=None</code></pre>
                             </div>
                             <div id="node" style="display: none;">
 <pre><code>var transport = nodemailer.createTransport({
-    host: "sandbox.smtp.mailtrap.io",
-    port: 2525,
+    host: "{{ .host }}",
+    port: {{ .port }},
     auth: {
-        user: "8d42f7547fd490",
-        pass: "7e337ffafe28ed"
+        user: "{{ .username }}",
+        pass: "{{ .password }}"
     }
 });</code></pre>
+                            </div>
+                            <div id="curl" style="display: none;">
+<textarea class="form-control" rows="8">{{ .curl }}</textarea>
+                            </div>
+                            <div id="django" style="display: none;">
+<pre><code>EMAIL_HOST={{ .host }}
+EMAIL_PORT={{ .port }}
+EMAIL_HOST_USER={{ .username }}
+EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                             </div>
                         </div>
 
@@ -417,6 +428,15 @@ MAIL_ENCRYPTION=None</code></pre>
                     <tr>
                         <td>İleti Kimliği</td>
                         <td class="mail-to">#message-id#</td>
+                    </tr>
+                    <!-- cc -->
+                    <tr>
+                        <td>CC</td>
+                        <td class="mail-cc">#cc#</td>
+                    </tr>
+                    <tr>
+                        <td>BCC</td>
+                        <td class="mail-bcc">#bcc#</td>
                     </tr>
                     <tr>
                         <td>İleti Tarihi</td>
@@ -604,6 +624,12 @@ MAIL_ENCRYPTION=None</code></pre>
                 </div>
             `);
 
+            function encodeMyHtml(html) {
+                let encodedHtml = html.replace(/\</g,"(");
+                encodedHtml = encodedHtml.replace(/\>/g,")");
+                return $.parseHTML(encodedHtml);
+            }
+
             $.ajax({
                 url: '/api/mails/' + id,
                 type: 'GET',
@@ -616,9 +642,11 @@ MAIL_ENCRYPTION=None</code></pre>
                     $('#mail-content').html(html);
                     // set data
                     $('#mail-content .mail-subject').html(data.data.subject);
-                    $('#mail-content .mail-from').html(data.data.from);
-                    $('#mail-content .mail-to').html(data.data.to);
-                    $('#mail-content #raw-pane textarea').val(data.data.body);
+                    $('#mail-content .mail-from').html(encodeMyHtml(data.data.from));
+                    $('#mail-content .mail-to').html(encodeMyHtml(data.data.to));
+                    $('#mail-content .mail-cc').html(encodeMyHtml(data.data.cc));
+                    $('#mail-content .mail-bcc').html(encodeMyHtml(data.data.bcc));
+                    $('#mail-content #raw-pane textarea').val(data.data.data);
                     $('#mail-content .mail-date').html(data.data.date);
                     // get iframe from api
                     $('#mail-content .mail-iframe').attr('src', '/iframe/mails/' + data.data.id);
