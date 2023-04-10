@@ -70,3 +70,56 @@
 .bd-mode-toggle {
     z-index: 1500;
 }
+
+.progress {
+    width: 100%;
+    height: 10px;
+}
+
+.progress > svg {
+    width: 100%;
+    display: block;
+}
+
+
+.toploader {
+    width: 100%;
+    margin: 0 auto;
+    position: absolute;
+    height: 2px;
+    z-index: 9999;
+}
+
+.toploader .loaderBar {
+    position: absolute;
+    top: 0;
+    right: 100%;
+    bottom: 0;
+    left: 0;
+    background: #0E6EFD;
+    width: 0;
+    animation: borealisBar 2s linear infinite;
+}
+
+@keyframes borealisBar {
+    0% {
+        left: 0%;
+        right: 100%;
+        width: 0%;
+    }
+    10% {
+        left: 0%;
+        right: 75%;
+        width: 55%;
+    }
+    90% {
+        right: 0%;
+        left: 75%;
+        width: 15%;
+    }
+    100% {
+        left: 100%;
+        right: 0%;
+        width: 0%;
+    }
+}

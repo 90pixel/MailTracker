@@ -20,6 +20,9 @@
 
 </head>
 <body>
+<div class="toploader">
+    <div class="loaderBar"></div>
+</div>
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
     <symbol id="check2" viewBox="0 0 16 16">
         <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
@@ -492,7 +495,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                 time = +new Date();
         }
 
-        var time_formats = [
+        const time_formats = [
             [60, 'saniye önce', 1],
             [120, '1 dakika önce', '1 dakika sonra'],
             [3600, 'dakika', 60],
@@ -510,7 +513,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             [58060800000, 'yüzyıl', 2903040000]
         ];
 
-        var seconds = (+new Date() - time) / 1000,
+        let seconds = (+new Date() - time) / 1000,
             token = 'önce',
             list_choice = 1;
 
@@ -522,7 +525,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             token = 'sonra';
             list_choice = 2;
         }
-        var i = 0,
+        let i = 0,
             format;
         while (format = time_formats[i++])
             if (seconds < format[0]) {
@@ -536,19 +539,15 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
 
     function getAllMails() {
         // loader
-        $('#mail-box').html(`
-            <div class="d-flex justify-content-center list-group-item pt-4 pb-4 list-group-item-action" id="loader">
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Yükleniyor...</span>
-                </div>
-            </div>
-        `);
+        $('.toploader').show();
         $.ajax({
             url: '/api/mails',
             type: 'GET',
             dataType: 'json',
             success: function (data) {
                 // when empty data show empty message
+                $('.toploader').delay(2000).fadeOut(5);
+                $('#mail-box').html('');
                 if (data.data === null || data.data === 0) {
                     $('#mail-box').html(`
                         <div class="d-flex justify-content-center list-group-item pt-4 pb-4 list-group-item-action">
@@ -594,7 +593,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
 
     $(function () {
 
-
+        $('.toploader').delay(2000).fadeOut(5);
         getSettings();
 
         getAllMails();
