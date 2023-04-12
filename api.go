@@ -19,16 +19,19 @@ import (
 )
 
 type mailDto struct {
-	Id      string `json:"id"`
-	Date    string `json:"date"`
-	Subject string `json:"subject"`
-	Data    string `json:"data"`
-	To      string `json:"to"`
-	IsRead  int    `json:"isRead"`
-	From    string `json:"from"`
-	Body    string `json:"body"`
-	Cc      string `json:"cc"`
-	Bcc     string `json:"bcc"`
+	Id          string `json:"id"`
+	Date        string `json:"date"`
+	Subject     string `json:"subject"`
+	Data        string `json:"data"`
+	To          string `json:"to"`
+	IsRead      int    `json:"isRead"`
+	From        string `json:"from"`
+	Body        string `json:"body"`
+	Cc          string `json:"cc"`
+	Bcc         string `json:"bcc"`
+	Rcpt        string `json:"rcpt"`
+	MimeVersion string `json:"mimeVersion"`
+	ContentType string `json:"contentType"`
 }
 
 func main() {

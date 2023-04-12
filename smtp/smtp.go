@@ -7,12 +7,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/emersion/go-smtp"
+	"github.com/kylegrantlucas/discord-smtp-server/email"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"io"
 	"io/ioutil"
 	"log"
 	"mime"
+	"mime/quotedprintable"
 	"net/http"
 	"net/mail"
 	"os"
@@ -99,15 +101,18 @@ func (s *Session) Rcpt(to string) error {
 }
 
 type mailDto struct {
-	Date    string `json:"date"`
-	Subject string `json:"subject"`
-	Data    string `json:"data"`
-	To      string `json:"to"`
-	IsRead  int    `json:"isRead"`
-	From    string `json:"from"`
-	Body    string `json:"body"`
-	Cc      string `json:"cc"`
-	Bcc     string `json:"bcc"`
+	Date        string `json:"date"`
+	Subject     string `json:"subject"`
+	Data        string `json:"data"`
+	To          string `json:"to"`
+	IsRead      int    `json:"isRead"`
+	From        string `json:"from"`
+	Rcpt        string `json:"rcpt"`
+	MimeVersion string `json:"mimeVersion"`
+	ContentType string `json:"contentType"`
+	Body        string `json:"body"`
+	Cc          string `json:"cc"`
+	Bcc         string `json:"bcc"`
 }
 
 func (s *Session) Data(r io.Reader) error {
@@ -131,7 +136,7 @@ func (s *Session) Data(r io.Reader) error {
 		log.Fatal(err)
 	}
 
-	body, err := io.ReadAll(msg.Body)
+	body, err := io.ReadAll(quotedprintable.NewReader(msg.Body))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -144,6 +149,11 @@ func (s *Session) Data(r io.Reader) error {
 	}
 
 	to, err := dec.DecodeHeader(msg.Header.Get("To"))
+	if err != nil {
+		return err
+	}
+
+	address, err := email.Parse(to)
 	if err != nil {
 		return err
 	}
@@ -163,12 +173,25 @@ func (s *Session) Data(r io.Reader) error {
 		return err
 	}
 
+	contentType, err := dec.DecodeHeader(msg.Header.Get("Content-Type"))
+	if err != nil {
+		return err
+	}
+
+	mimeVersion, err := dec.DecodeHeader(msg.Header.Get("Mime-Version"))
+	if err != nil {
+		return err
+	}
+
 	var newMail mailDto
 	newMail.Data = string(b)
 	newMail.Subject = subject
 	newMail.To = to
 	newMail.From = from
 	newMail.Body = string(body)
+	newMail.Rcpt = address.TLD
+	newMail.MimeVersion = mimeVersion
+	newMail.ContentType = contentType
 	newMail.Cc = cc
 	newMail.Bcc = bcc
 	newMail.Date = time.Now().Format("01/02/2006 15:04:05")

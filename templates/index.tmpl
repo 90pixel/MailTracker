@@ -644,6 +644,9 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                     $('#mail-content .mail-from').html(encodeMyHtml(data.data.from));
                     $('#mail-content .mail-to').html(encodeMyHtml(data.data.to));
                     $('#mail-content .mail-cc').html(encodeMyHtml(data.data.cc));
+                    $('#mail-content .mail-mime-version').html(encodeMyHtml(data.data.mimeVersion));
+                    $('#mail-content .mail-content-type').html(encodeMyHtml(data.data.contentType));
+                    $('#mail-content .mail-reported').html(encodeMyHtml(data.data.rcpt));
                     $('#mail-content .mail-bcc').html(encodeMyHtml(data.data.bcc));
                     $('#mail-content #raw-pane textarea').val(data.data.data);
                     $('#mail-content .mail-date').html(data.data.date);
