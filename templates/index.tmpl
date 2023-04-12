@@ -546,7 +546,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             dataType: 'json',
             success: function (data) {
                 // when empty data show empty message
-                $('.toploader').delay(2000).fadeOut(5);
+                $('.toploader').delay(1000).fadeOut(5);
                 $('#mail-box').html('');
                 if (data.data === null || data.data === 0) {
                     $('#mail-box').html(`
@@ -593,14 +593,14 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
 
     $(function () {
 
-        $('.toploader').delay(2000).fadeOut(5);
+        $('.toploader').delay(1000).fadeOut(5);
         getSettings();
 
         getAllMails();
 
         setInterval(function () {
             getAllMails();
-        }, 10000);
+        }, 20000);
 
         $("#mail-content").on('change', '#select-language', function () {
             const id = $(this).val();
