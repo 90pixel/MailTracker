@@ -2,20 +2,25 @@ package main
 
 import (
 	"context"
+	"crypto/md5"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 	"github.com/joho/godotenv"
 	_ "github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"golang.org/x/text/encoding/unicode"
+	"golang.org/x/crypto/bcrypt"
 	"html/template"
+	"io"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"regexp"
+	"time"
 )
 
 type mailDto struct {
@@ -156,20 +161,11 @@ func main() {
 			log.Fatal(err)
 		}
 		html := ""
-		// only html tag in body
 
-		var dec = unicode.UTF8.NewDecoder()
-		body, _ := dec.String("=?UTF-8?" + mail.Body)
-
-		data := regexp.MustCompile(`(?s)<body.*?>(.*?)</body>`).FindStringSubmatch(string(body))
+		data := regexp.MustCompile(`(?s)<body.*?>(.*?)</body>`).FindStringSubmatch(mail.Body)
 		if len(data) > 0 {
 			html = data[1]
 		}
-
-		// replace =\n
-		html = regexp.MustCompile(`=\r`).ReplaceAllString(html, "")
-		html = regexp.MustCompile(`\n`).ReplaceAllString(html, "")
-		html = regexp.MustCompile(`3D\"`).ReplaceAllString(html, "\"")
 
 		// when request query param return json
 		if c.Query("json") == "true" {
@@ -246,5 +242,170 @@ func main() {
 			"message": "All mails read",
 		})
 	})
+	// user and login routes
+
+	type userDto = struct {
+		Id       string `json:"id"`
+		Salt     string `json:"salt"`
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Role     string `json:"role"`
+	}
+
+	router.GET("/api/users", func(c *gin.Context) {
+		var users []userDto
+		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
+		cur, err := collection.Find(context.TODO(), bson.D{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		for cur.Next(context.TODO()) {
+			var user userDto
+			err := cur.Decode(&user)
+			if err != nil {
+				log.Fatal(err)
+			}
+			user.Id = cur.Current.Lookup("_id").ObjectID().Hex()
+			users = append(users, user)
+		}
+		if err := cur.Err(); err != nil {
+			log.Fatal(err)
+		}
+		err = cur.Close(context.TODO())
+		if err != nil {
+			log.Fatal(err)
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"data": users,
+		})
+	})
+	router.POST("/api/login", func(c *gin.Context) {
+		var user userDto
+		c.BindJSON(&user)
+
+		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
+		plainPwd := user.Password
+		// get username from users
+		err := collection.FindOne(context.TODO(), bson.M{"username": user.Username}).Decode(&user)
+		if err != nil {
+			c.JSON(
+				http.StatusUnauthorized,
+				gin.H{
+					"message": "Kullanıcı adı veya parola hatalı.",
+				})
+			return
+		}
+
+		byteHash := []byte(user.Password)
+		err = bcrypt.CompareHashAndPassword(byteHash, []byte(plainPwd))
+		if err != nil {
+			c.JSON(
+				http.StatusUnauthorized,
+				gin.H{
+					"message": "Kullanıcı adı veya parola hatalı.",
+				})
+			return
+		}
+
+		token := jwt.New(jwt.SigningMethodHS256)
+		claims := make(jwt.MapClaims)
+		claims["exp"] = time.Now().Add(time.Duration(360000)).Unix()
+		claims["iat"] = time.Now().Unix()
+		claims["sub"] = user.Salt
+
+		tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		c.JSON(
+			http.StatusOK,
+			gin.H{
+				"data": gin.H{
+					"token": tokenString,
+					"user":  user,
+				},
+			},
+		)
+	})
+	router.POST("/api/users", func(c *gin.Context) {
+		var user userDto
+		c.BindJSON(&user)
+
+		rand.Seed(time.Now().UnixNano())
+		b := make([]byte, 10+2)
+		rand.Read(b)
+		salt := fmt.Sprintf("%x", b)[2 : 10+2]
+		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
+
+		hashPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
+		if err != nil {
+			log.Println(err)
+		}
+
+		_, err = collection.InsertOne(context.TODO(), bson.D{
+			{"username", user.Username},
+			{"password", string(hashPassword)},
+			{"salt", salt},
+			{"role", user.Role},
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "User created",
+		})
+	})
+	router.DELETE("/api/users/:id", func(c *gin.Context) {
+		objID, _ := primitive.ObjectIDFromHex(c.Param("id"))
+		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
+		_, err := collection.DeleteOne(context.TODO(), bson.M{"_id": objID})
+		if err != nil {
+			log.Fatal(err)
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": "User deleted",
+		})
+	})
+	// update user
+	router.PUT("/api/users/:id", func(c *gin.Context) {
+		objID, _ := primitive.ObjectIDFromHex(c.Param("id"))
+		var user userDto
+		c.BindJSON(&user)
+		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
+
+		_, err := collection.UpdateOne(context.TODO(), bson.M{"_id": objID}, bson.D{
+			{"$set", bson.D{
+				{"username", user.Username},
+			},
+			},
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if len(user.Password) > 0 {
+			h := md5.New()
+			hashPassword, err := io.WriteString(h, user.Password)
+			if err != nil {
+				log.Fatal(err)
+			}
+			_, err = collection.UpdateOne(context.TODO(), bson.M{"_id": objID}, bson.D{
+				{"$set", bson.D{
+					{"password", hashPassword},
+				},
+				},
+			})
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "User updated",
+		})
+	})
+
 	router.Run()
 }

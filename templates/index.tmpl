@@ -119,73 +119,122 @@
     </symbol>
 </svg>
 
-<main class="d-flex flex-nowrap">
+<div id="login" style="display:none;">
+    <main class="d-flex flex-nowrap">
 
 
-    <div class="d-flex flex-column flex-shrink-0 bg-body-tertiary" style="width: 4.5rem;">
-        <a href="/" class="d-block p-3 link-body-emphasis text-decoration-none" title="{{ .title }}"
-           data-bs-toggle="tooltip" data-bs-placement="right">
-            <svg viewbox="0 0 32 32" width="32" height="32" stroke="currentColor" fill="currentColor">
-                <path d="M32 2.7H5.3v21.3h26.7V2.7zM8 21.3V5.3h21.3v16H8zM2.7 9.3H0v20h25.3v-2.6H2.7V9.3z m10.6-1.3H10.7v2.7h2.6v2.6h2.7v2.7h5.3v-2.7h2.7V10.7h2.7V8h-2.7v2.7h-2.7v2.6h-5.3V10.7h-2.7V8z"/>
-            </svg>
-
-            <span class="visually-hidden">Icon-only</span>
-        </a>
-        <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
-            <li class="nav-item">
-                <a href="#" class="nav-link active py-3 border-bottom rounded-0" aria-current="page"
-                   title="Gelen Kutusu"
-                   data-bs-toggle="tooltip" data-bs-placement="right">
-                    <svg class="bi pe-none" width="24" height="24" role="img" aria-label="Gelen Kutusu">
-                        <use xlink:href="#home"/>
-                    </svg>
-                </a>
-            </li>
-            <li>
-                <a href="#" class="nav-link py-3 border-bottom rounded-0" title="Dashboard" data-bs-toggle="tooltip"
-                   data-bs-placement="right">
-                    <svg class="bi pe-none" width="24" height="24" role="img" aria-label="Dashboard">
-                        <use xlink:href="#grid"/>
-                    </svg>
-                </a>
-            </li>
-            <li>
-                <a href="#" class="nav-link py-3 border-bottom rounded-0" title="Ayarlar" data-bs-toggle="tooltip"
-                   data-bs-placement="right">
-                    <svg class="bi pe-none" width="24" height="24" role="img" aria-label="Ayarlar">
-                        <use xlink:href="#grid"/>
-                    </svg>
-                </a>
-            </li>
-            <li>
-                <a href="#" class="nav-link py-3 border-bottom rounded-0" title="Kullanıcılar" data-bs-toggle="tooltip"
-                   data-bs-placement="right">
-                    <svg class="bi pe-none" width="24" height="24" role="img" aria-label="Kullanıcılar">
-                        <use xlink:href="#people-circle"/>
-                    </svg>
-                </a>
-            </li>
-        </ul>
-        <div class="dropdown border-top">
-            <a href="#"
-               class="d-flex align-items-center justify-content-center p-3 link-body-emphasis text-decoration-none dropdown-toggle"
-               data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="https://github.com/mdo.png" alt="mdo" width="24" height="24" class="rounded-circle">
-            </a>
-            <ul class="dropdown-menu text-small shadow">
-                <li><a class="dropdown-item" href="#">Profil</a></li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item" href="#">Çıkış</a></li>
-            </ul>
+        <!-- Login username and password form screen-->
+        <div class="d-flex flex-column flex-shrink-0 bg-primary position-relative d-none d-md-flex "
+             style="width: 35%;">
+            <div class="dotm-overlay z-0">
+                <svg width="100%" height="100%">
+                    <defs>
+                        <pattern id="polka-dots" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+                            <circle id="pattern-circle" cx="2" cy="2" r="1.6257413380501518" fill="#FFF"
+                                    opacity="0.2"></circle>
+                        </pattern>
+                    </defs>
+                    <rect x="0" y="0" width="100%" height="100%" fill="url(#polka-dots)"></rect>
+                </svg>
+            </div>
+            <div class="w-100 h-100 text-center d-none d-md-flex text-white align-items-center d-flex justify-content-center position-relative z-1">
+                <svg viewbox="0 0 32 32" width="20%" height="20%" stroke="#FFF" fill="#FFF">
+                    <path d="M32 2.7H5.3v21.3h26.7V2.7zM8 21.3V5.3h21.3v16H8zM2.7 9.3H0v20h25.3v-2.6H2.7V9.3z m10.6-1.3H10.7v2.7h2.6v2.6h2.7v2.7h5.3v-2.7h2.7V10.7h2.7V8h-2.7v2.7h-2.7v2.6h-5.3V10.7h-2.7V8z"/>
+                </svg>
+                <h1 class="p-3">MailTracker</h1>
+            </div>
         </div>
-    </div>
+        <div class="b-example-divider b-example-vr" style="width: 5%"></div>
+        <div class="d-flex flex-column flex-shrink-0 p-3 bg-body" style="width: 60%;">
+            <div class="d-block w-100 h-100 text-white align-items-center justify-content-center position-relative z-1">
+                <form action="#" method="post" id="login-form" class="p-4 w-70"
+                      style="margin-top: 45vh; transform: translateY(-50%);">
+                    <h3 class="mb-4">Giriş Yap</h3>
+                    <div class="mb-3">
+                        <label for="login_username" class="form-label">Kullanıcı Adı</label>
+                        <input type="text" class="form-control" id="login_username" name="username"
+                               placeholder="Kullanıcı Adı">
+                    </div>
+                    <div class="mb-3">
+                        <label for="login_password" class="form-label">Şifre</label>
+                        <input type="password" class="form-control" id="login_password" name="login_password"
+                               placeholder="Şifre">
+                    </div>
+                    <button type="submit" class="btn mt-4 btn-primary">Giriş Yap</button>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
 
-    <div class="b-example-divider b-example-vr"></div>
+<div id="main" style="display:none;">
+    <main class="d-flex flex-nowrap">
 
-    <div class="d-flex position-relative flex-column align-items-stretch flex-shrink-0 bg-body-tertiary"
-         style="width: 380px;">
+        <div class="d-flex flex-column flex-shrink-0 bg-body-tertiary" style="width: 4.5rem;">
+            <a href="/" class="d-block p-3 link-body-emphasis text-decoration-none" title="{{ .title }}"
+               data-bs-toggle="tooltip" data-bs-placement="right">
+                <svg viewbox="0 0 32 32" width="32" height="32" stroke="currentColor" fill="currentColor">
+                    <path d="M32 2.7H5.3v21.3h26.7V2.7zM8 21.3V5.3h21.3v16H8zM2.7 9.3H0v20h25.3v-2.6H2.7V9.3z m10.6-1.3H10.7v2.7h2.6v2.6h2.7v2.7h5.3v-2.7h2.7V10.7h2.7V8h-2.7v2.7h-2.7v2.6h-5.3V10.7h-2.7V8z"/>
+                </svg>
+
+                <span class="visually-hidden">Icon-only</span>
+            </a>
+            <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active py-3 border-bottom rounded-0" aria-current="page"
+                       title="Gelen Kutusu"
+                       data-bs-toggle="tooltip" data-bs-placement="right">
+                        <svg class="bi pe-none" width="24" height="24" role="img" aria-label="Gelen Kutusu">
+                            <use xlink:href="#home"/>
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link py-3 border-bottom rounded-0" title="Dashboard" data-bs-toggle="tooltip"
+                       data-bs-placement="right">
+                        <svg class="bi pe-none" width="24" height="24" role="img" aria-label="Dashboard">
+                            <use xlink:href="#grid"/>
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link py-3 border-bottom rounded-0" title="Ayarlar" data-bs-toggle="tooltip"
+                       data-bs-placement="right">
+                        <svg class="bi pe-none" width="24" height="24" role="img" aria-label="Ayarlar">
+                            <use xlink:href="#grid"/>
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link py-3 border-bottom rounded-0" title="Kullanıcılar"
+                       data-bs-toggle="tooltip"
+                       data-bs-placement="right">
+                        <svg class="bi pe-none" width="24" height="24" role="img" aria-label="Kullanıcılar">
+                            <use xlink:href="#people-circle"/>
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+            <div class="dropdown border-top">
+                <a href="#"
+                   class="d-flex align-items-center justify-content-center p-3 link-body-emphasis text-decoration-none dropdown-toggle"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="https://github.com/mdo.png" alt="mdo" width="24" height="24" class="rounded-circle">
+                </a>
+                <ul class="dropdown-menu text-small shadow">
+                    <li><a class="dropdown-item" href="#">Profil</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item logout-btn" href="#">Çıkış</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="b-example-divider b-example-vr"></div>
+
+        <div class="d-flex position-relative flex-column align-items-stretch flex-shrink-0 bg-body-tertiary"
+             style="width: 380px;">
 
 
             <span class="position-absolute  mt-3" style="right: 1rem;">
@@ -195,44 +244,45 @@
                       fill="none" stroke-width="2.6666666666666665" stroke-linecap="square"/></svg>
                    </a>
             </span>
-        <span class="position-absolute  mt-3" style="right: 3.5rem;">
+            <span class="position-absolute  mt-3" style="right: 3.5rem;">
                    <a href="#refresh" id="refresh-btn">
           <svg viewbox="0 0 32 32" width="24" height="24" stroke="currentColor" fill="currentColor"><path
                       d="M21.3 2.7h-2.6v2.6h2.6v2.7H5.3v2.7H2.7v6.6h2.6V10.7h16v2.6h-2.6v2.7h2.6v-2.7h2.7V10.7h2.7V8h-2.7V5.3h-2.7V2.7zM8 26.7h2.7v2.6h2.6v-2.6H10.7v-2.7h16v-2.7h2.6v-6.6h-2.6v6.6H10.7v-2.6h2.6v-2.7H10.7v2.7H8v2.6H5.3v2.7h2.7v2.7z"/></svg>
                    </a>
             </span>
-        <span class="position-absolute mt-3" style="right: 6rem;">
+            <span class="position-absolute mt-3" style="right: 6rem;">
                   <a href="#delete" id="delete-all-btn">
         <svg viewbox="0 0 32 32" width="24" height="24" stroke="currentColor" fill="currentColor"><path
                     d="M21.3 2.7v5.3h8v2.7h-2.6v18.6H5.3V10.7H2.7V8h8V2.7h10.6z m-2.6 2.6h-5.4v2.7h5.4V5.3z m0 5.4H8v16h16V10.7h-5.3z m-6.7 2.6h2.7v10.7H12v-10.7z m8 0h-2.7v10.7h2.7v-10.7z"/></svg>
         </a>
             </span>
-        <span class="position-absolute mt-3" style="right: 9rem;">
+            <span class="position-absolute mt-3" style="right: 9rem;">
             <a href="#read-all" id="read-all-btn">
         <svg viewbox="0 0 32 32" width="24" height="24" stroke="currentColor" fill="currentColor"><path
                     d="M5.3 5.3h24v13.4h-2.6V8H5.3v16h10.7v2.7H2.7V5.3h2.6z m5.4 5.4H8v2.6h2.7v2.7h2.6v2.7h5.4v-2.7h2.6v-2.7h2.7V10.7h-2.7v2.6h-2.6v2.7h-5.4v-2.7H10.7V10.7z m8 13.3h2.6v2.7h-2.6v-2.7z m5.3 2.7v2.6h-2.7v-2.6h2.7z m2.7-2.7h-2.7v2.7h2.7v-2.7z m0 0v-2.7h2.6v2.7h-2.6z"/></svg>
                 </a>
             </span>
-        <a href="/"
-           class="d-inline-block p-3 link-body-emphasis text-decoration-none border-bottom">
-            <span class="fs-5 fw-semibold">Gelen Kutusu</span>
-        </a>
+            <a href="/"
+               class="d-inline-block p-3 link-body-emphasis text-decoration-none border-bottom">
+                <span class="fs-5 fw-semibold">Gelen Kutusu</span>
+            </a>
 
-        <div class="list-group list-group-flush border-bottom scrollarea" id="mail-box">
+            <div class="list-group list-group-flush border-bottom scrollarea" id="mail-box">
 
 
+            </div>
         </div>
-    </div>
 
-    <div class="b-example-divider b-example-vr"></div>
+        <div class="b-example-divider b-example-vr"></div>
 
-    <div class="d-flex flex-column flex-shrink-0 p-3 bg-body" style="width: 70%;">
-        <div id="mail-content">
+        <div class="d-flex flex-column flex-shrink-0 p-3 bg-body" style="width: 70%;">
+            <div id="mail-content">
 
+            </div>
         </div>
-    </div>
 
-</main>
+    </main>
+</div>
 
 <theme id="mailbox-settings" class="d-none">
     <div class="mail-item-content">
@@ -321,7 +371,7 @@ MAIL_ENCRYPTION=None</code></pre>
 });</code></pre>
                             </div>
                             <div id="curl" style="display: none;">
-<textarea class="form-control" rows="8">{{ .curl }}</textarea>
+                                <textarea class="form-control" rows="8">{{ .curl }}</textarea>
                             </div>
                             <div id="django" style="display: none;">
 <pre><code>EMAIL_HOST={{ .host }}
@@ -383,9 +433,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                         frameborder="0" width="100%"></iframe>
             </div>
             <div class="tab-pane fade" id="html-inside-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
-                <textarea class="html-inside-textarea" cols="30" rows="10"
-                          style="min-height: 500px; height: 80vh; width: 100%"
-                          readonly></textarea>
+                <pre style="height: 80vh; overflow-x: auto;"><code class="html-inside language-html"></code></pre>
             </div>
             <div class="tab-pane fade" id="raw-pane" role="tabpanel" aria-labelledby="raw-tab" tabindex="0">
                 <textarea class="raw" cols="30" rows="10" style="min-height: 500px; height: 80vh; width: 100%"
@@ -479,6 +527,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
     });
 
     window.activeMail = null;
+    window.generatedLoop = false;
 
     function timeAgo(time) {
 
@@ -544,9 +593,14 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             url: '/api/mails',
             type: 'GET',
             dataType: 'json',
+            beforeSend: function (xhr) {
+                if (localStorage.token) {
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.token);
+                }
+            },
             success: function (data) {
                 // when empty data show empty message
-                $('.toploader').delay(1000).fadeOut(5);
+                $('.toploader').delay(1600).fadeOut(10);
                 $('#mail-box').html('');
                 if (data.data === null || data.data === 0) {
                     $('#mail-box').html(`
@@ -591,16 +645,109 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
         $('#mail-content').html(html);
     }
 
+    function encodeMyHtml(html) {
+        let encodedHtml = html.replace(/\</g, "(");
+        encodedHtml = encodedHtml.replace(/\>/g, ")");
+        return $.parseHTML(encodedHtml);
+    }
+
+    function getMailDetail(data, thisMail) {
+        window.activeMail = data.data.id;
+        thisMail.removeClass('text-white bg-dark-subtle').addClass('active');
+        // get template
+        const html = $("#mail-item-content").html();
+        $('#mail-content').html(html);
+        // set data
+        $('#mail-content .mail-subject').html(data.data.subject);
+        $('#mail-content .mail-from').html(encodeMyHtml(data.data.from));
+        $('#mail-content .mail-to').html(encodeMyHtml(data.data.to));
+        $('#mail-content .mail-cc').html(encodeMyHtml(data.data.cc));
+        $('#mail-content .mail-mime-version').html(encodeMyHtml(data.data.mimeVersion));
+        $('#mail-content .mail-content-type').html(encodeMyHtml(data.data.contentType));
+        $('#mail-content .mail-reported').html(encodeMyHtml(data.data.rcpt));
+        $('#mail-content .mail-bcc').html(encodeMyHtml(data.data.bcc));
+        $('#mail-content #raw-pane textarea').val(data.data.data);
+        $('#mail-content .mail-date').html(data.data.date);
+        // get iframe from api
+        $('#mail-content .mail-iframe').attr('src', '/iframe/mails/' + data.data.id);
+        // call ajax api query
+        $.ajax({
+            url: '/iframe/mails/' + data.data.id,
+            type: 'GET',
+            dataType: 'json',
+            data: {
+                'json': true
+            },
+            beforeSend: function (xhr) {
+                if (localStorage.token) {
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.token);
+                }
+            },
+            success: function (data) {
+                $('#mail-content .html-inside').text(data.data);
+                hljs.highlightElement($('#mail-content .html-inside')[0]);
+            },
+            error: function (data) {
+                console.log(data)
+            }
+        });
+    }
+
+    function checkLogin() {
+        $('.toploader').delay(1600).fadeOut(10);
+        if (localStorage.token) {
+            $('#main').show();
+            $('#login').hide();
+            getSettings();
+            getAllMails();
+            if (!window.generatedLoop) {
+                setInterval(function () {
+                    if (localStorage.token) {
+                        getAllMails();
+                    }
+                }, 20000);
+                window.generatedLoop = true
+            }
+
+        } else {
+            $('#main').hide();
+            $('#login').show();
+        }
+    }
+
     $(function () {
 
-        $('.toploader').delay(1000).fadeOut(5);
-        getSettings();
+        checkLogin();
 
-        getAllMails();
+        $(".logout-btn").click(function (e) {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            checkLogin();
+        })
 
-        setInterval(function () {
-            getAllMails();
-        }, 20000);
+        $("#login-form").on("submit", function (e) {
+            e.preventDefault();
+            const username = $('#login_username').val();
+            const password = $('#login_password').val();
+            $.ajax({
+                url: '/api/login',
+                type: 'POST',
+                dataType: 'json',
+                data: JSON.stringify({
+                    username: username,
+                    password: password
+                }),
+                contentType: "application/json",
+                accept: "application/json",
+                success: function (data) {
+                    localStorage.setItem('token', data.data.token);
+                    checkLogin();
+                },
+                error: function (data) {
+                    console.log(data)
+                }
+            })
+        });
 
         $("#mail-content").on('change', '#select-language', function () {
             const id = $(this).val();
@@ -623,50 +770,17 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                 </div>
             `);
 
-            function encodeMyHtml(html) {
-                let encodedHtml = html.replace(/\</g,"(");
-                encodedHtml = encodedHtml.replace(/\>/g,")");
-                return $.parseHTML(encodedHtml);
-            }
-
             $.ajax({
                 url: '/api/mails/' + id,
                 type: 'GET',
                 dataType: 'json',
+                beforeSend: function (xhr) {
+                    if (localStorage.token) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.token);
+                    }
+                },
                 success: function (data) {
-                    window.activeMail = data.data.id;
-                    thisMail.removeClass('text-white bg-dark-subtle').addClass('active');
-                    // get template
-                    const html = $("#mail-item-content").html();
-                    $('#mail-content').html(html);
-                    // set data
-                    $('#mail-content .mail-subject').html(data.data.subject);
-                    $('#mail-content .mail-from').html(encodeMyHtml(data.data.from));
-                    $('#mail-content .mail-to').html(encodeMyHtml(data.data.to));
-                    $('#mail-content .mail-cc').html(encodeMyHtml(data.data.cc));
-                    $('#mail-content .mail-mime-version').html(encodeMyHtml(data.data.mimeVersion));
-                    $('#mail-content .mail-content-type').html(encodeMyHtml(data.data.contentType));
-                    $('#mail-content .mail-reported').html(encodeMyHtml(data.data.rcpt));
-                    $('#mail-content .mail-bcc').html(encodeMyHtml(data.data.bcc));
-                    $('#mail-content #raw-pane textarea').val(data.data.data);
-                    $('#mail-content .mail-date').html(data.data.date);
-                    // get iframe from api
-                    $('#mail-content .mail-iframe').attr('src', '/iframe/mails/' + data.data.id);
-                    // call ajax api query
-                    $.ajax({
-                        url: '/iframe/mails/' + id,
-                        type: 'GET',
-                        dataType: 'json',
-                        data: {
-                            'json': true
-                        },
-                        success: function (data) {
-                            $('#mail-content .html-inside-textarea').val(data.data)
-                        },
-                        error: function (data) {
-                            console.log(data)
-                        }
-                    });
+                    getMailDetail(data, thisMail);
                 },
                 error: function (data) {
                     console.log(data)

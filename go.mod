@@ -6,6 +6,7 @@ require (
 	github.com/bwmarrin/discordgo v0.22.1
 	github.com/emersion/go-smtp v0.14.0
 	github.com/gin-gonic/gin v1.9.0
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/joho/godotenv v1.5.1
 	go.mongodb.org/mongo-driver v1.11.4
 )
