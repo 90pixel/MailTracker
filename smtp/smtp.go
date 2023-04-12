@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/emersion/go-smtp"
-	"github.com/kylegrantlucas/discord-smtp-server/email"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"io"
@@ -18,6 +17,7 @@ import (
 	"net/http"
 	"net/mail"
 	"os"
+	"regexp"
 	"time"
 )
 
@@ -141,47 +141,64 @@ func (s *Session) Data(r io.Reader) error {
 		log.Fatal(err)
 	}
 
+	fmt.Println(msg.Header)
+
 	var dec mime.WordDecoder
 
 	subject, err := dec.DecodeHeader(msg.Header.Get("Subject"))
 	if err != nil {
+		fmt.Println("1")
 		return err
 	}
 
 	to, err := dec.DecodeHeader(msg.Header.Get("To"))
 	if err != nil {
+		fmt.Println("2")
 		return err
 	}
 
-	address, err := email.Parse(to)
-	if err != nil {
-		return err
+	// TODO: Parse the email address using regex : Name <email>
+	address := regexp.MustCompile(`(?m)<(.*)>`).FindStringSubmatch(to)
+	if len(address) == 0 {
+		address = append(address, to)
 	}
+
+	fmt.Println(address)
 
 	from, err := dec.DecodeHeader(msg.Header.Get("From"))
 	if err != nil {
+		fmt.Println("3")
 		return err
 	}
 
 	cc, err := dec.DecodeHeader(msg.Header.Get("Cc"))
 	if err != nil {
+		fmt.Println("4")
 		return err
 	}
 
 	bcc, err := dec.DecodeHeader(msg.Header.Get("Bcc"))
 	if err != nil {
+		fmt.Println("5")
 		return err
 	}
 
 	contentType, err := dec.DecodeHeader(msg.Header.Get("Content-Type"))
 	if err != nil {
+		fmt.Println("6")
 		return err
 	}
 
 	mimeVersion, err := dec.DecodeHeader(msg.Header.Get("Mime-Version"))
 	if err != nil {
+		fmt.Println("7")
 		return err
 	}
+	fmt.Println(
+		"rcpt: "+address[0],
+		"mimeVersion: "+mimeVersion,
+		"contentType: "+contentType,
+	)
 
 	var newMail mailDto
 	newMail.Data = string(b)
@@ -189,7 +206,7 @@ func (s *Session) Data(r io.Reader) error {
 	newMail.To = to
 	newMail.From = from
 	newMail.Body = string(body)
-	newMail.Rcpt = address.TLD
+	newMail.Rcpt = address[0]
 	newMail.MimeVersion = mimeVersion
 	newMail.ContentType = contentType
 	newMail.Cc = cc
