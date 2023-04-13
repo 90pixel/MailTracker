@@ -11,6 +11,7 @@
     <link href="/assets/css/style.css" rel="stylesheet">
     <!-- Custom styles for this template -->
     <link href="/assets/css/sidebars.css" rel="stylesheet">
+    <link href="/assets/libs/awesome-notifications/style.css" rel="stylesheet">
     <!-- Favicon Set -->
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
@@ -518,7 +519,29 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/dark.min.css">
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<script src="/assets/libs/awesome-notifications/index.js"></script>
+<script src="/assets/libs/awesome-notifications/index.js"></script>
+<script src="/assets/libs/awesome-notifications/index.var.js"></script>
+<script src="/assets/libs/awesome-notifications/modern.js"></script>
+<script src="/assets/libs/awesome-notifications/modern.var.js"></script>
 <script type="text/javascript">
+    let notifier = new AWN({
+        position: 'bottom-right',
+        labels: {
+            success: 'Başarılı',
+            alert: 'Uyarı',
+            error: 'Hata',
+            info: 'Bilgi',
+            confirm: 'Onay',
+            warning: 'Uyarı',
+            confirmOk: "Tamam",
+            confirmCancel: "İptal"
+        },
+        animations: {
+            show: ['animated', 'fadeIn'],
+            hide: ['animated', 'fadeOut']
+        }
+    });
 
     document.addEventListener('DOMContentLoaded', (event) => {
         document.querySelectorAll('code').forEach((el) => {
@@ -708,7 +731,6 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                 }, 20000);
                 window.generatedLoop = true
             }
-
         } else {
             $('#main').hide();
             $('#login').show();
@@ -742,9 +764,12 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                 success: function (data) {
                     localStorage.setItem('token', data.data.token);
                     checkLogin();
+                    notifier.success('Giriş başarılı');
                 },
                 error: function (data) {
-                    console.log(data)
+                    if (401 === data.status && data.responseJSON.message) {
+                        notifier.warning(data.responseJSON.message);
+                    }
                 }
             })
         });
@@ -800,86 +825,75 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
 
         $("#delete-all-btn").on("click", function (e) {
             e.preventDefault();
-            // confirm
-            if (!confirm('Tüm mailleri silmek istediğinize emin misiniz?')) {
-                return false;
-            }
-            // loader
-            $('#mail-box').html(`
-                <div class="d-flex justify-content-center list-group-item pt-4 pb-4 list-group-item-action" id="loader">
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Yükleniyor...</span>
+            notifier.confirm('Tüm mailleri silmek istediğinize emin misiniz?', function () {
+
+                $('.toploader').show();
+
+                $('#mail-box').html(`
+                    <div class="d-flex justify-content-center list-group-item pt-4 pb-4 list-group-item-action" id="loader">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Yükleniyor...</span>
+                        </div>
                     </div>
-                </div>
-            `);
-            $.ajax({
-                url: '/api/mails',
-                type: 'DELETE',
-                dataType: 'json',
-                success: function (data) {
-                    getAllMails();
-                },
-                error: function (data) {
-                    console.log(data)
-                }
-            })
+                `);
+                $.ajax({
+                    url: '/api/mails',
+                    type: 'DELETE',
+                    dataType: 'json',
+                    success: function (data) {
+                        notifier.success('Tüm mailler silindi');
+                        getAllMails();
+                    },
+                    error: function (data) {
+                        if (401 === data.status && data.responseJSON.message) {
+                            notifier.warning(data.responseJSON.message);
+                        }
+                    }
+                })
+            });
         });
 
-        // remove mail
         $("#mail-content").on("click", "#delete-btn", function (e) {
             e.preventDefault();
-            // confirm
-            if (!confirm('Bu maili silmek istediğinize emin misiniz?')) {
-                return false;
-            }
-            // loader
-            $('#mail-content').html(`
-                <div class="d-flex justify-content-center list-group-item pt-4 pb-4 list-group-item-action" id="loader">
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Yükleniyor...</span>
-                    </div>
-                </div>
-            `);
-            $.ajax({
-                url: '/api/mails/' + window.activeMail,
-                type: 'DELETE',
-                dataType: 'json',
-                success: function (data) {
-                    getSettings();
-                    getAllMails();
-                },
-                error: function (data) {
-                    console.log(data)
-                }
-            })
+            notifier.confirm('Bu maili silmek istediğinize emin misiniz?', function () {
+                $('.toploader').show();
+                $.ajax({
+                    url: '/api/mails/' + window.activeMail,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    success: function (data) {
+                        notifier.success('Mail silindi');
+                        getSettings();
+                        getAllMails();
+                    },
+                    error: function (data) {
+                        if (401 === data.status && data.responseJSON.message) {
+                            notifier.warning(data.responseJSON.message);
+                        }
+                    }
+                })
+            });
         });
 
         $("#read-all-btn").on("click", function (e) {
             e.preventDefault();
-            // confirm
-            if (!confirm('Tüm mailleri okundu olarak işaretlemek istediğinize emin misiniz?')) {
-                return false;
-            }
-
-            // loader
-            $('#mail-box').html(`
-                <div class="d-flex justify-content-center list-group-item pt-4 pb-4 list-group-item-action" id="loader">
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Yükleniyor...</span>
-                    </div>
-                </div>
-            `);
-            $.ajax({
-                url: '/api/mails',
-                type: 'PUT',
-                dataType: 'json',
-                success: function (data) {
-                    getAllMails();
-                },
-                error: function (data) {
-                    console.log(data)
-                }
-            })
+            notifier.confirm('Tüm mailleri okundu olarak işaretlemek istediğinize emin misiniz?', function () {
+                $('.toploader').show();
+                $.ajax({
+                    url: '/api/mails',
+                    type: 'PUT',
+                    dataType: 'json',
+                    success: function (data) {
+                        notifier.success('Tüm mailler okundu olarak işaretlendi');
+                        getAllMails();
+                    },
+                    error: function (data) {
+                        if (401 === data.status && data.responseJSON.message) {
+                            notifier.warning(data.responseJSON.message);
+                        }
+                    }
+                })
+            });
         });
 
     });

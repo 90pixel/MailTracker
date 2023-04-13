@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -20,6 +21,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -39,24 +41,145 @@ type mailDto struct {
 	ContentType string `json:"contentType"`
 }
 
-func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+type mailMinDto struct {
+	Id      string `json:"id"`
+	Date    string `json:"date"`
+	Subject string `json:"subject"`
+	To      string `json:"to"`
+	IsRead  int    `json:"isRead"`
+	From    string `json:"from"`
+}
 
+type userDto = struct {
+	Id       string `json:"id"`
+	Salt     string `json:"salt"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Role     string `json:"role"`
+}
+
+type apiUserDto = struct {
+	Id       string `json:"id"`
+	Username string `json:"username"`
+	Role     string `json:"role"`
+}
+
+func connection(startup bool) *mongo.Client {
 	clientOptions := options.Client().ApplyURI(os.Getenv("MONGO_URI"))
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Check the connection
-	err = client.Ping(context.TODO(), nil)
-	if err != nil {
-		log.Fatal(err)
+	if startup {
+		// Check the connection
+		err = client.Ping(context.TODO(), nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Connected to MongoDB!")
 	}
-	fmt.Println("Connected to MongoDB!")
+	return client
+}
 
+func extractBearerToken(header string) (string, error) {
+	if header == "" {
+		return "", errors.New("bad header value given")
+	}
+
+	jwtToken := strings.Split(header, " ")
+	if len(jwtToken) != 2 {
+		return "", errors.New("incorrectly formatted authorization header")
+	}
+
+	return jwtToken[1], nil
+}
+
+func parseToken(jwtToken string) (*jwt.Token, error) {
+	token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (interface{}, error) {
+		if _, OK := token.Method.(*jwt.SigningMethodHMAC); !OK {
+			return nil, errors.New("bad signed method received")
+		}
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+
+	if err != nil {
+		return nil, errors.New("bad jwt token")
+	}
+
+	return token, nil
+}
+
+func permissionPublic(c *gin.Context) {
+	c.Next()
+}
+
+func permissionCheckAuth(c *gin.Context) {
+	permissionCheck(c, "")
+	c.Next()
+}
+
+func permissionCheckAdmin(c *gin.Context) {
+	permissionCheck(c, "admin")
+	c.Next()
+}
+
+func permissionCheckWatcher(c *gin.Context) {
+	permissionCheck(c, "watcher")
+	c.Next()
+}
+
+func permissionCheck(c *gin.Context, role string) {
+	client := connection(false)
+	jwtToken, err := extractBearerToken(c.GetHeader("Authorization"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "bad authorization header",
+		})
+		return
+	}
+	token, err := parseToken(jwtToken)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "bad jwt token",
+		})
+		return
+	}
+
+	fmt.Println("token", token)
+	salt := token.Claims.(jwt.MapClaims)["sub"]
+
+	var user apiUserDto
+
+	collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
+	err = collection.FindOne(context.TODO(), bson.M{"salt": salt}).Decode(&user)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "user not found",
+		})
+	}
+
+	if role != "" && user.Role != string(role) {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"message": "user not authorized",
+		})
+	}
+
+	var apiUser apiUserDto
+	apiUser.Id = user.Id
+	apiUser.Username = user.Username
+	apiUser.Role = user.Role
+
+	c.Set("currentUser", apiUser)
+
+	c.Next()
+}
+
+func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	client := connection(true)
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/assets", "./assets")
@@ -112,46 +235,7 @@ func main() {
 			"password": os.Getenv("SMTP_USERNAME"),
 		})
 	})
-	router.GET("/api/mails", func(c *gin.Context) {
-		var mails []mailDto
-		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("mails")
-		// order by date desc
-		opts := options.Find()
-		opts.SetSort(bson.D{{"_id", -1}})
-		cur, err := collection.Find(context.TODO(), bson.D{}, opts)
-		if err != nil {
-			log.Fatal(err)
-		}
-		// has empty result empty array
-		if cur.RemainingBatchLength() == 0 {
-			c.JSON(http.StatusOK, gin.H{
-				"data": mails,
-			})
-			return
-		}
 
-		for cur.Next(context.TODO()) {
-			var mail mailDto
-
-			err := cur.Decode(&mail)
-			if err != nil {
-				log.Fatal(err)
-			}
-			mail.Id = cur.Current.Lookup("_id").ObjectID().Hex()
-			mails = append(mails, mail)
-		}
-		if err := cur.Err(); err != nil {
-			log.Fatal(err)
-		}
-		err = cur.Close(context.TODO())
-		if err != nil {
-			log.Fatal(err)
-		}
-		c.JSON(http.StatusOK, gin.H{
-			"data": mails,
-		})
-	})
-	// get mail from iframe
 	router.GET("/iframe/mails/:id", func(c *gin.Context) {
 		objID, _ := primitive.ObjectIDFromHex(c.Param("id"))
 		var mail mailDto
@@ -180,7 +264,52 @@ func main() {
 			"body": template.HTML(html),
 		})
 	})
-	router.GET("/api/mails/:id", func(c *gin.Context) {
+
+	permissionMailRouter := router.Group("/")
+	permissionMailRouter.Use(permissionCheckAuth)
+	permissionMailRouter.GET("/api/mails", func(c *gin.Context) {
+		var mails []mailMinDto
+		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("mails")
+		// order by date desc
+		opts := options.Find()
+		opts.SetSort(bson.D{{"_id", -1}})
+		cur, err := collection.Find(context.TODO(), bson.D{}, opts)
+		if err != nil {
+			log.Fatal(err)
+		}
+		// has empty result empty array
+		if cur.RemainingBatchLength() == 0 {
+			c.JSON(http.StatusOK, gin.H{
+				"data": mails,
+			})
+			return
+		}
+
+		for cur.Next(context.TODO()) {
+			var mail mailMinDto
+
+			mail.Id = cur.Current.Lookup("_id").ObjectID().Hex()
+			mail.From = cur.Current.Lookup("from").StringValue()
+			mail.To = cur.Current.Lookup("to").StringValue()
+			mail.Subject = cur.Current.Lookup("subject").StringValue()
+			mail.Date = cur.Current.Lookup("date").StringValue()
+
+			mails = append(mails, mail)
+		}
+		if err := cur.Err(); err != nil {
+			log.Fatal(err)
+		}
+		err = cur.Close(context.TODO())
+		if err != nil {
+			log.Fatal(err)
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"data": mails,
+		})
+	})
+	// get mail from iframe
+
+	permissionMailRouter.GET("/api/mails/:id", func(c *gin.Context) {
 		objID, _ := primitive.ObjectIDFromHex(c.Param("id"))
 
 		var mail mailDto
@@ -204,7 +333,9 @@ func main() {
 			"data": mail,
 		})
 	})
-	router.DELETE("/api/mails/:id", func(c *gin.Context) {
+	permissionAdminMailRouter := router.Group("/")
+	permissionAdminMailRouter.Use(permissionCheckAdmin)
+	permissionAdminMailRouter.DELETE("/api/mails/:id", func(c *gin.Context) {
 		objID, _ := primitive.ObjectIDFromHex(c.Param("id"))
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("mails")
 		_, err := collection.DeleteOne(context.TODO(), bson.M{"_id": objID})
@@ -216,7 +347,7 @@ func main() {
 		})
 	})
 	// delete all
-	router.DELETE("/api/mails", func(c *gin.Context) {
+	permissionAdminMailRouter.DELETE("/api/mails", func(c *gin.Context) {
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("mails")
 		_, err := collection.DeleteMany(context.TODO(), bson.M{})
 		if err != nil {
@@ -227,7 +358,7 @@ func main() {
 		})
 	})
 	// read all
-	router.PUT("/api/mails", func(c *gin.Context) {
+	permissionAdminMailRouter.PUT("/api/mails", func(c *gin.Context) {
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("mails")
 		_, err := collection.UpdateMany(context.TODO(), bson.M{}, bson.D{
 			{"$set", bson.D{
@@ -244,41 +375,6 @@ func main() {
 	})
 	// user and login routes
 
-	type userDto = struct {
-		Id       string `json:"id"`
-		Salt     string `json:"salt"`
-		Username string `json:"username"`
-		Password string `json:"password"`
-		Role     string `json:"role"`
-	}
-
-	router.GET("/api/users", func(c *gin.Context) {
-		var users []userDto
-		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
-		cur, err := collection.Find(context.TODO(), bson.D{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		for cur.Next(context.TODO()) {
-			var user userDto
-			err := cur.Decode(&user)
-			if err != nil {
-				log.Fatal(err)
-			}
-			user.Id = cur.Current.Lookup("_id").ObjectID().Hex()
-			users = append(users, user)
-		}
-		if err := cur.Err(); err != nil {
-			log.Fatal(err)
-		}
-		err = cur.Close(context.TODO())
-		if err != nil {
-			log.Fatal(err)
-		}
-		c.JSON(http.StatusOK, gin.H{
-			"data": users,
-		})
-	})
 	router.POST("/api/login", func(c *gin.Context) {
 		var user userDto
 		c.BindJSON(&user)
@@ -309,9 +405,10 @@ func main() {
 
 		token := jwt.New(jwt.SigningMethodHS256)
 		claims := make(jwt.MapClaims)
-		claims["exp"] = time.Now().Add(time.Duration(360000)).Unix()
+		claims["exp"] = time.Now().Add(time.Hour * 24 * 365).Unix()
 		claims["iat"] = time.Now().Unix()
 		claims["sub"] = user.Salt
+		token.Claims = claims
 
 		tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 		if err != nil {
@@ -328,7 +425,52 @@ func main() {
 			},
 		)
 	})
-	router.POST("/api/users", func(c *gin.Context) {
+
+	permissionUserRouter := router.Group("/")
+	permissionUserRouter.Use(permissionCheckAdmin)
+	permissionUserRouter.GET("/api/users/me", func(c *gin.Context) {
+
+		user, err := c.Get("currentUser")
+		if !err {
+			c.JSON(
+				http.StatusUnauthorized,
+				gin.H{
+					"message": "Oturum açmadınız.",
+				})
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"data": user,
+		})
+	})
+	permissionUserRouter.GET("/api/users", func(c *gin.Context) {
+		var users []userDto
+		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
+		cur, err := collection.Find(context.TODO(), bson.D{})
+		if err != nil {
+			log.Fatal(err)
+		}
+		for cur.Next(context.TODO()) {
+			var user userDto
+			err := cur.Decode(&user)
+			if err != nil {
+				log.Fatal(err)
+			}
+			user.Id = cur.Current.Lookup("_id").ObjectID().Hex()
+			users = append(users, user)
+		}
+		if err := cur.Err(); err != nil {
+			log.Fatal(err)
+		}
+		err = cur.Close(context.TODO())
+		if err != nil {
+			log.Fatal(err)
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"data": users,
+		})
+	})
+	permissionUserRouter.POST("/api/users", func(c *gin.Context) {
 		var user userDto
 		c.BindJSON(&user)
 
@@ -357,7 +499,7 @@ func main() {
 			"message": "User created",
 		})
 	})
-	router.DELETE("/api/users/:id", func(c *gin.Context) {
+	permissionUserRouter.DELETE("/api/users/:id", func(c *gin.Context) {
 		objID, _ := primitive.ObjectIDFromHex(c.Param("id"))
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
 		_, err := collection.DeleteOne(context.TODO(), bson.M{"_id": objID})
@@ -369,7 +511,7 @@ func main() {
 		})
 	})
 	// update user
-	router.PUT("/api/users/:id", func(c *gin.Context) {
+	permissionUserRouter.PUT("/api/users/:id", func(c *gin.Context) {
 		objID, _ := primitive.ObjectIDFromHex(c.Param("id"))
 		var user userDto
 		c.BindJSON(&user)

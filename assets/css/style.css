@@ -134,3 +134,8 @@
         opacity: 0.50;
     }
 }
+
+#awn-popup-wrapper .awn-popup-body.awn-popup-confirm {
+    background: #000;
+    color: #FFF;
+}
