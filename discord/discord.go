@@ -2,10 +2,9 @@ package discord
 
 import (
 	"fmt"
+	"github.com/bwmarrin/discordgo"
 	"log"
 	"strings"
-
-	"github.com/bwmarrin/discordgo"
 )
 
 type Client struct {

@@ -101,9 +101,8 @@ func (s *Session) Rcpt(to string) error {
 }
 
 type mailDto struct {
-	Date        string `json:"date"`
-	Subject     string `json:"subject"`
 	Data        string `json:"data"`
+	Subject     string `json:"subject"`
 	To          string `json:"to"`
 	IsRead      int    `json:"isRead"`
 	From        string `json:"from"`
@@ -113,6 +112,7 @@ type mailDto struct {
 	Body        string `json:"body"`
 	Cc          string `json:"cc"`
 	Bcc         string `json:"bcc"`
+	CreatedAt   string `json:"createdat"`
 }
 
 func (s *Session) Data(r io.Reader) error {
@@ -157,7 +157,6 @@ func (s *Session) Data(r io.Reader) error {
 		return err
 	}
 
-	// TODO: Parse the email address using regex : Name <email>
 	address := regexp.MustCompile(`(?m)<(.*)>`).FindStringSubmatch(to)
 	if len(address) == 0 {
 		address = append(address, to)
@@ -211,7 +210,7 @@ func (s *Session) Data(r io.Reader) error {
 	newMail.ContentType = contentType
 	newMail.Cc = cc
 	newMail.Bcc = bcc
-	newMail.Date = time.Now().Format("01/02/2006 15:04:05")
+	newMail.CreatedAt = time.Now().UTC().String()
 	newMail.IsRead = 0
 	var mailCollection = s.backend.client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("mails")
 	insert, err := mailCollection.InsertOne(context.TODO(), newMail)

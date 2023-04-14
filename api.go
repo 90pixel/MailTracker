@@ -1,5 +1,7 @@
 package main
 
+import _ "discord-smtp-server/tzinit"
+
 import (
 	"context"
 	"crypto/md5"
@@ -13,6 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/x/bsonx"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
 	"io"
@@ -22,12 +25,11 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"time"
+	time "time"
 )
 
 type mailDto struct {
 	Id          string `json:"id"`
-	Date        string `json:"date"`
 	Subject     string `json:"subject"`
 	Data        string `json:"data"`
 	To          string `json:"to"`
@@ -39,29 +41,32 @@ type mailDto struct {
 	Rcpt        string `json:"rcpt"`
 	MimeVersion string `json:"mimeVersion"`
 	ContentType string `json:"contentType"`
+	CreatedAt   string `json:"createdat"`
 }
 
-type mailMinDto struct {
-	Id      string `json:"id"`
-	Date    string `json:"date"`
-	Subject string `json:"subject"`
-	To      string `json:"to"`
-	IsRead  int    `json:"isRead"`
-	From    string `json:"from"`
+type mailListDto struct {
+	Id        string `json:"id"`
+	Subject   string `json:"subject"`
+	To        string `json:"to"`
+	IsRead    int    `json:"isRead"`
+	From      string `json:"from"`
+	CreatedAt string `json:"createdat"`
 }
 
 type userDto = struct {
-	Id       string `json:"id"`
-	Salt     string `json:"salt"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Role     string `json:"role"`
+	Id        string `json:"id"`
+	Salt      string `json:"salt"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	Role      string `json:"role"`
+	CreatedAt string `json:"createdat"`
 }
 
-type apiUserDto = struct {
-	Id       string `json:"id"`
-	Username string `json:"username"`
-	Role     string `json:"role"`
+type userListDto = struct {
+	Id        string `json:"id"`
+	Username  string `json:"username"`
+	Role      string `json:"role"`
+	CreatedAt string `json:"createdat"`
 }
 
 func connection(startup bool) *mongo.Client {
@@ -144,12 +149,8 @@ func permissionCheck(c *gin.Context, role string) {
 		})
 		return
 	}
-
-	fmt.Println("token", token)
 	salt := token.Claims.(jwt.MapClaims)["sub"]
-
-	var user apiUserDto
-
+	var user userListDto
 	collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
 	err = collection.FindOne(context.TODO(), bson.M{"salt": salt}).Decode(&user)
 	if err != nil {
@@ -164,10 +165,11 @@ func permissionCheck(c *gin.Context, role string) {
 		})
 	}
 
-	var apiUser apiUserDto
+	var apiUser userListDto
 	apiUser.Id = user.Id
 	apiUser.Username = user.Username
 	apiUser.Role = user.Role
+	apiUser.CreatedAt = user.CreatedAt
 
 	c.Set("currentUser", apiUser)
 
@@ -268,7 +270,7 @@ func main() {
 	permissionMailRouter := router.Group("/")
 	permissionMailRouter.Use(permissionCheckAuth)
 	permissionMailRouter.GET("/api/mails", func(c *gin.Context) {
-		var mails []mailMinDto
+		var mails []mailListDto
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("mails")
 		// order by date desc
 		opts := options.Find()
@@ -286,14 +288,13 @@ func main() {
 		}
 
 		for cur.Next(context.TODO()) {
-			var mail mailMinDto
+			var mail mailListDto
 
 			mail.Id = cur.Current.Lookup("_id").ObjectID().Hex()
 			mail.From = cur.Current.Lookup("from").StringValue()
 			mail.To = cur.Current.Lookup("to").StringValue()
 			mail.Subject = cur.Current.Lookup("subject").StringValue()
-			mail.Date = cur.Current.Lookup("date").StringValue()
-
+			mail.CreatedAt = cur.Current.Lookup("createdat").StringValue()
 			mails = append(mails, mail)
 		}
 		if err := cur.Err(); err != nil {
@@ -444,19 +445,22 @@ func main() {
 		})
 	})
 	permissionUserRouter.GET("/api/users", func(c *gin.Context) {
-		var users []userDto
+		var users []userListDto
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
 		cur, err := collection.Find(context.TODO(), bson.D{})
 		if err != nil {
 			log.Fatal(err)
 		}
 		for cur.Next(context.TODO()) {
-			var user userDto
+			var user userListDto
 			err := cur.Decode(&user)
 			if err != nil {
 				log.Fatal(err)
 			}
 			user.Id = cur.Current.Lookup("_id").ObjectID().Hex()
+			user.Username = cur.Current.Lookup("username").StringValue()
+			user.Role = cur.Current.Lookup("role").StringValue()
+
 			users = append(users, user)
 		}
 		if err := cur.Err(); err != nil {
@@ -485,11 +489,27 @@ func main() {
 			log.Println(err)
 		}
 
+		index := []mongo.IndexModel{
+			{
+				Keys: bsonx.Doc{{Key: "index", Value: bsonx.String("text")}},
+			},
+			{
+				Keys: bsonx.Doc{{Key: "date", Value: bsonx.Int32(-1)}},
+			},
+		}
+
+		opts := options.CreateIndexes().SetMaxTime(10 * time.Second)
+		_, err = collection.Indexes().CreateMany(context.TODO(), index, opts)
+		if err != nil {
+			panic(err)
+		}
+
 		_, err = collection.InsertOne(context.TODO(), bson.D{
 			{"username", user.Username},
 			{"password", string(hashPassword)},
 			{"salt", salt},
 			{"role", user.Role},
+			{"createdat", time.Now().UTC().String()},
 		})
 		if err != nil {
 			log.Fatal(err)

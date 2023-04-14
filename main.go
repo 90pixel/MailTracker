@@ -1,9 +1,11 @@
 package main
 
+import _ "discord-smtp-server/tzinit"
+
 import (
+	"discord-smtp-server/smtp"
 	gosmtp "github.com/emersion/go-smtp"
 	"github.com/joho/godotenv"
-	"github.com/kylegrantlucas/discord-smtp-server/smtp"
 	"log"
 	"os"
 	"time"
