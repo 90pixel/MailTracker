@@ -139,3 +139,47 @@
     background: #000;
     color: #FFF;
 }
+
+
+.dj-slider {
+    min-height: 200px;
+    background-size: cover;
+    display: flex;
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+.dj-slide {
+    display: none;
+    left: -400px;
+}
+
+.dj-slide.active {
+    display: block;
+    left: 0;
+}
+
+.section.active {
+    display: flex !important;
+}
+
+.section {
+    display: none !important;
+}
+
+theme_color {
+    --white: #ffffff;
+    --light: #9dd8fb;
+    --dark: #6b0108;
+    --primary: #002a6f;
+    --secondary: #2b66a7;
+    --info: #accf67;
+    --success: #00a35d;
+    --warning: #e2cb00;
+    --danger: #f11800;
+}
+
+
+
+
+

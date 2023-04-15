@@ -7,7 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="Tamer Agaoglu">
     <title>{{ .title }}</title>
-    <link href="/assets/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/assets/css/bootstrap.custom.css" rel="stylesheet">
     <link href="/assets/css/style.css" rel="stylesheet">
     <!-- Custom styles for this template -->
     <link href="/assets/css/sidebars.css" rel="stylesheet">
@@ -22,7 +22,7 @@
 </head>
 <body>
 <div class="toploader">
-    <div class="loaderBar"></div>
+    <div class="loaderBar bg-light"></div>
 </div>
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
     <symbol id="check2" viewBox="0 0 16 16">
@@ -172,9 +172,9 @@
 
                 <span class="visually-hidden">Icon-only</span>
             </a>
-            <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
+            <ul class="nav nav-pills nav-flush flex-column mb-auto text-center" id="left-menu">
                 <li class="nav-item">
-                    <a href="/" class="nav-link active py-3 border-bottom  rounded-0" aria-current="page"
+                    <a href="section-mail" class="nav-link active py-3 border-bottom  rounded-0" aria-current="page"
                        title="Gelen Kutusu"
                        data-bs-toggle="tooltip" data-bs-placement="right">
                         <svg class="bi pe-none" width="24" height="24" role="img" aria-label="Gelen Kutusu">
@@ -183,7 +183,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="nav-link py-3 border-bottom rounded-0" title="Kullanıcılar"
+                    <a href="section-user" class="nav-link py-3 border-bottom rounded-0" title="Kullanıcılar"
                        data-bs-toggle="tooltip"
                        data-bs-placement="right">
                         <svg class="bi pe-none" width="24" height="24" role="img" aria-label="Kullanıcılar">
@@ -192,7 +192,8 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="nav-link py-3 border-bottom rounded-0" title="Ayarlar" data-bs-toggle="tooltip"
+                    <a href="section-settings" class="nav-link py-3 border-bottom rounded-0" title="Ayarlar"
+                       data-bs-toggle="tooltip"
                        data-bs-placement="right">
                         <svg class="bi pe-none" width="24" height="24" role="img" aria-label="Ayarlar">
                             <use xlink:href="#setting-icon"/>
@@ -218,25 +219,48 @@
 
         <div class="b-example-divider b-example-vr"></div>
 
-        <div class="d-flex position-relative flex-column align-items-stretch flex-shrink-0 bg-body-tertiary"
+        <div class="section section-mail active d-flex position-relative dj-slider overflow-hidden flex-column align-items-stretch flex-shrink-0 bg-body-tertiary"
              style="width: 380px;">
-
-
-            <span class="position-absolute  mt-3" style="right: 1rem; width: 25px; height: 50px" title="Kurulum Rehberi"
-                  data-bs-toggle="tooltip" data-bs-placement="bottom">
+            <div class="position-relative dj-slide active mail-slide">
+                <span class="position-absolute  mt-3" style="right: 1rem; width: 25px; height: 50px"
+                      title="Kurulum Rehberi"
+                      data-bs-toggle="tooltip" data-bs-placement="bottom">
                    <a href="#settings" id="settings-btn">
-          <svg  viewbox="0 0 32 32" width="20" height="20" stroke="currentColor" fill="currentColor"><path d="M5.3 28L5.3 18.7" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round" stroke-linejoin="round" /><path d="M5.3 13.3L5.3 4" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round" stroke-linejoin="round" /><path d="M16 28L16 16" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round" stroke-linejoin="round" /><path d="M16 10.7L16 4" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round" stroke-linejoin="round" /><path d="M26.7 28L26.7 21.3" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round" stroke-linejoin="round" /><path d="M26.7 16L26.7 4" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round" stroke-linejoin="round" /><path d="M1.3 18.7L9.3 18.7" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round" stroke-linejoin="round" /><path d="M12 10.7L20 10.7" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round" stroke-linejoin="round" /><path d="M22.7 21.3L30.7 21.3" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          <svg viewbox="0 0 32 32" width="20" height="20" stroke="currentColor" fill="currentColor"><path
+                      d="M5.3 28L5.3 18.7" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round"
+                      stroke-linejoin="round"/><path d="M5.3 13.3L5.3 4" fill="none" stroke-width="2.6666666666666665"
+                                                     stroke-linecap="round" stroke-linejoin="round"/><path
+                      d="M16 28L16 16" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round"
+                      stroke-linejoin="round"/><path d="M16 10.7L16 4" fill="none" stroke-width="2.6666666666666665"
+                                                     stroke-linecap="round" stroke-linejoin="round"/><path
+                      d="M26.7 28L26.7 21.3" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round"
+                      stroke-linejoin="round"/><path d="M26.7 16L26.7 4" fill="none" stroke-width="2.6666666666666665"
+                                                     stroke-linecap="round" stroke-linejoin="round"/><path
+                      d="M1.3 18.7L9.3 18.7" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round"
+                      stroke-linejoin="round"/><path d="M12 10.7L20 10.7" fill="none" stroke-width="2.6666666666666665"
+                                                     stroke-linecap="round" stroke-linejoin="round"/><path
+                      d="M22.7 21.3L30.7 21.3" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round"
+                      stroke-linejoin="round"/></svg>
                    </a>
             </span>
-            <span class="position-absolute  mt-3" style="right: 3.5rem; width: 25px; height: 50px" title="Yenile"
-                  data-bs-toggle="tooltip" data-bs-placement="bottom">
+                <span class="position-absolute  mt-3" style="right: 3.5rem; width: 25px; height: 50px"
+                      title="Yenile"
+                      data-bs-toggle="tooltip" data-bs-placement="bottom">
                    <a href="#refresh" id="refresh-btn">
-                       <svg  viewbox="0 0 32 32" width="20" height="20" stroke="currentColor" fill="currentColor"><path d="M1.3 5.3L1.3 13.3 9.3 13.3" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round" stroke-linejoin="round" /><path d="M30.7 26.7L30.7 18.7 22.7 18.7" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round" stroke-linejoin="round" /><path d="M27.3 12A12 12 0 0 0 7.5 7.5L1.3 13.3m29.4 5.4l-6.2 5.8A12 12 0 0 1 4.7 20" fill="none" stroke-width="2.6666666666666665" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                       <svg viewbox="0 0 32 32" width="20" height="20" stroke="currentColor" fill="currentColor"><path
+                                   d="M1.3 5.3L1.3 13.3 9.3 13.3" fill="none" stroke-width="2.6666666666666665"
+                                   stroke-linecap="round" stroke-linejoin="round"/><path
+                                   d="M30.7 26.7L30.7 18.7 22.7 18.7" fill="none" stroke-width="2.6666666666666665"
+                                   stroke-linecap="round" stroke-linejoin="round"/><path
+                                   d="M27.3 12A12 12 0 0 0 7.5 7.5L1.3 13.3m29.4 5.4l-6.2 5.8A12 12 0 0 1 4.7 20"
+                                   fill="none" stroke-width="2.6666666666666665" stroke-linecap="round"
+                                   stroke-linejoin="round"/></svg>
                    </a>
             </span>
-            <span class="position-absolute mt-3 d-block" style="right: 5.9rem; width: 25px; height: 50px" title="Tümünü Sil"
-                  data-bs-toggle="tooltip" data-bs-placement="bottom">
-                  <a href="#delete" id="delete-all-btn"   >
+                <span class="position-absolute mt-3 d-block" style="right: 5.9rem; width: 25px; height: 50px"
+                      title="Tümünü Sil"
+                      data-bs-toggle="tooltip" data-bs-placement="bottom">
+                  <a href="#delete" id="delete-all-btn">
 <svg viewbox="0 0 32 32" width="20" height="20" stroke="currentColor" fill="currentColor"><path d="M4 8L6.7 8 28 8"
                                                                                                 fill="none"
                                                                                                 stroke-width="2.6666666666666665"
@@ -251,8 +275,9 @@
 
         </a>
             </span>
-            <span class="position-absolute mt-3" style="right: 8.5rem; width: 25px; height: 50px" title="Okundu Olarak İşaretle"
-                  data-bs-toggle="tooltip" data-bs-placement="bottom">
+                <span class="position-absolute mt-3" style="right: 8.5rem; width: 25px; height: 50px"
+                      title="Okundu Olarak İşaretle"
+                      data-bs-toggle="tooltip" data-bs-placement="bottom">
             <a href="#read-all" id="read-all-btn">
                     <svg viewbox="0 0 32 32" width="25" height="25" stroke="currentColor" fill="currentColor"><path
                                 d="M12 14.7L16 18.7 29.3 5.3" fill="none" stroke-width="2.6666666666666665"
@@ -263,25 +288,73 @@
 
                 </a>
             </span>
-            <span
-                    class="d-inline-block p-3 text-decoration-none border-bottom">
+                <span
+                        class="d-inline-block p-3 text-decoration-none ">
                 <span class="fs-5 fw-semibold">Gelen Kutusu</span>
             </span>
 
-            <div class="list-group list-group-flush border-bottom scrollarea" id="mail-box">
+                <div class="list-group list-group-flush border-bottom scrollarea" id="mail-box">
 
 
+                </div>
             </div>
         </div>
 
-        <div class="b-example-divider b-example-vr"></div>
+        <div class="section section-mail active b-example-divider b-example-vr"></div>
 
-        <div class="d-flex flex-column flex-shrink-0 p-3 bg-body" style="width: 70%;">
+        <div class="section section-mail active d-flex flex-column flex-shrink-0 p-3 bg-body" style="width: 70%;">
             <div id="mail-content">
 
             </div>
+
         </div>
 
+        <div class="section section-user d-flex flex-column flex-shrink-0 p-3 bg-body" style="width: 80%;">
+            <h1 class="h4 mb-4 mt-4">Kullanıcılar</h1>
+
+            <div class="row mb-4">
+                <div class="col-10"></div>
+                <div class="col-2" style="text-align: right">
+                    <a hrwef="#" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#userModal">
+                        <svg  viewbox="0 0 32 32" style="width: 1rem; height:1rem;" stroke="currentColor" fill="currentColor"><path d="M8.3 8.5C8.3 5.5 10.8 3 13.8 3 16.9 3 19.3 5.5 19.3 8.5 19.3 11.5 16.9 14 13.8 14 10.8 14 8.3 11.5 8.3 8.5Z"  /><path d="M4.3 25.5C4.3 20.3 8.6 16 13.8 16 19.1 16 23.3 20.3 23.3 25.5V25.5C23.3 25.6 23.3 25.6 23.3 25.7 23.3 26 23.1 26.3 22.8 26.5 20.2 28.1 17.1 29 13.8 29 10.5 29 7.5 28.1 4.8 26.5 4.5 26.3 4.3 26 4.3 25.7 4.3 25.6 4.3 25.6 4.3 25.5Z"  /><path d="M26.3 10C26.3 9.4 25.9 9 25.3 9 24.8 9 24.3 9.4 24.3 10V13H21.3C20.8 13 20.3 13.4 20.3 14 20.3 14.6 20.8 15 21.3 15H24.3V18C24.3 18.6 24.8 19 25.3 19 25.9 19 26.3 18.6 26.3 18V15H29.3C29.9 15 30.3 14.6 30.3 14 30.3 13.4 29.9 13 29.3 13H26.3V10Z"  /></svg>
+                        Kullanıcı Ekle
+                    </a>
+                </div>
+            </div>
+
+            <div id="user-content">
+
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th scope="col">Id</th>
+                                <th scope="col">Kullanıcı Adı</th>
+                                <th scope="col">Rol</th>
+                                <th scope="col">Oluşturulma Tarihi</th>
+                                <th scope="col" width="200">İşlemler</th>
+                            </tr>
+                            </thead>
+                            <tbody id="user-table">
+                            <tr>
+                                <td colspan="4" class="p-4" style="text-align: center"> Kayıt Bulunamadı </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="section section-settings d-flex flex-column flex-shrink-0 p-3 bg-body" style="width: 80%;">
+            <h5>Ayarlar</h5>
+            <div id="settings-content">
+
+            </div>
+        </div>
     </main>
 </div>
 
@@ -396,7 +469,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
     <div class="mail-item-content">
         <span class="float-end">
             <!-- delete button -->
-            <a href="#delete" class="btn btn-danger btn-sm" id="delete-btn">
+            <a href="#delete" class="btn btn-danger text-light btn-sm" id="delete-btn">
                 <svg viewbox="0 0 32 32" width="12" height="12" style="margin-top: -4px;" stroke="currentColor"
                      fill="currentColor"><path
                             d="M21.3 2.7v5.3h8v2.7h-2.6v18.6H5.3V10.7H2.7V8h8V2.7h10.6z m-2.6 2.6h-5.4v2.7h5.4V5.3z m0 5.4H8v16h16V10.7h-5.3z m-6.7 2.6h2.7v10.7H12v-10.7z m8 0h-2.7v10.7h2.7v-10.7z"/></svg>
@@ -609,6 +682,58 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
         return time;
     }
 
+    function getUsers() {
+        // loader
+        $('.toploader').show();
+        $.ajax({
+            url: '/api/users',
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function (xhr) {
+                if (localStorage.token) {
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.token);
+                }
+            },
+            success: function (data) {
+                // when empty data show empty message
+                $('.toploader').delay(1600).fadeOut(10);
+
+                $('#user-content tbody').html('');
+
+                if (data.data === null || data.data === 0) {
+                    $('#user-content tbody').append(`
+                        <tr>
+                            <td colspan="5" class="text-center">Kullanıcı bulunamadı.</td>
+                        </tr>
+                    `);
+                    return;
+                }
+                // loop data
+                $.each(data.data, function (index, value) {
+
+                    $('#user-content tbody').append(`
+                        <tr>
+                            <td class="user-id">${value.id}</td>
+                            <td>${value.username}</td>
+                            <td>${value.role}</td>
+                            <td>${value.createdat}</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger delete-user" data-id="${value.id}">Sil</button>
+                                <button class="btn btn-sm btn-warning edit-user" data-id="${value.id}">Düzenle</button>
+                            </td>
+                        </tr>
+                    `);
+
+                });
+                // remove loader
+                $('#loader').remove();
+            },
+            error: function (data) {
+                console.log(data)
+            }
+        });
+    }
+
     function getAllMails() {
         // loader
         $('.toploader').show();
@@ -738,6 +863,23 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
     }
 
     $(function () {
+
+        $("#left-menu a").click(function (e) {
+            e.preventDefault();
+            $("#left-menu a").removeClass('active');
+            $(this).addClass('active');
+            $(".section").removeClass('active');
+            const id = $(this).attr('href');
+            if (id === 'section-settings') {
+                // getGlobalSettings();
+            } else if (id === 'section-user') {
+                getUsers();
+            } else if (id === 'section-mail') {
+                getSettings();
+                getAllMails();
+            }
+            $("." + id).addClass('active');
+        });
 
         checkLogin();
 
