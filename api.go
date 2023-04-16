@@ -33,14 +33,14 @@ type mailDto struct {
 	Subject     string `json:"subject"`
 	Data        string `json:"data"`
 	To          string `json:"to"`
-	IsRead      int    `json:"isRead"`
+	IsRead      int    `json:"isread"`
 	From        string `json:"from"`
 	Body        string `json:"body"`
 	Cc          string `json:"cc"`
 	Bcc         string `json:"bcc"`
 	Rcpt        string `json:"rcpt"`
-	MimeVersion string `json:"mimeVersion"`
-	ContentType string `json:"contentType"`
+	MimeVersion string `json:"mimeversion"`
+	ContentType string `json:"contenttype"`
 	CreatedAt   string `json:"createdat"`
 }
 
@@ -48,7 +48,7 @@ type mailListDto struct {
 	Id        string `json:"id"`
 	Subject   string `json:"subject"`
 	To        string `json:"to"`
-	IsRead    int    `json:"isRead"`
+	IsRead    int    `json:"isread"`
 	From      string `json:"from"`
 	CreatedAt string `json:"createdat"`
 }
@@ -296,6 +296,7 @@ func main() {
 			mail.Id = cur.Current.Lookup("_id").ObjectID().Hex()
 			mail.From = cur.Current.Lookup("from").StringValue()
 			mail.To = cur.Current.Lookup("to").StringValue()
+			mail.IsRead = int(cur.Current.Lookup("isread").Int32())
 			mail.Subject = cur.Current.Lookup("subject").StringValue()
 			mail.CreatedAt = cur.Current.Lookup("createdat").StringValue()
 			mails = append(mails, mail)
@@ -328,7 +329,7 @@ func main() {
 		mail.Id = objID.Hex()
 		_, err = collection.UpdateOne(context.TODO(), bson.M{"_id": objID}, bson.D{
 			{"$set", bson.D{
-				{"isRead", 1},
+				{"isread", 1},
 			},
 			},
 		})
@@ -372,7 +373,7 @@ func main() {
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("mails")
 		_, err := collection.UpdateMany(context.TODO(), bson.M{}, bson.D{
 			{"$set", bson.D{
-				{"isRead", 1},
+				{"isread", 1},
 			},
 			},
 		})

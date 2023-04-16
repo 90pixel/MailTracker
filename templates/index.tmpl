@@ -808,14 +808,14 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                     const postDate = new Date(value.createdat);
                     const date = timeAgo(postDate);
                     let readClass = '';
-                    if (value.isRead === 0) {
+                    if (value.isread === 0) {
                         readClass = 'text-white bg-dark-subtle';
                     }
                     if (window.activeMail === value.id) {
                         readClass = 'active';
                     }
                     $('#mail-box').append(`
-                        <a href="#" data-is-read="${value.isRead}" data-id="${value.id}" class="list-group-item ${readClass} list-group-item-action py-3 mail-item lh-tight" aria-current="true">
+                        <a href="#" data-is-read="${value.isread}" data-id="${value.id}" class="list-group-item ${readClass} list-group-item-action py-3 mail-item lh-tight" aria-current="true">
                                 <small class="float-end">${date}</small>
                             <div class="col-10 mb-1 small">${value.subject}</div>
                             <div class="col-10 mb-1 small">${value.to.replace(/[\u00A0-\u9999<>\&]/gim, function (i) {
@@ -855,8 +855,8 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
         $('#mail-content .mail-from').html(encodeMyHtml(data.data.from));
         $('#mail-content .mail-to').html(encodeMyHtml(data.data.to));
         $('#mail-content .mail-cc').html(encodeMyHtml(data.data.cc));
-        $('#mail-content .mail-mime-version').html(encodeMyHtml(data.data.mimeVersion));
-        $('#mail-content .mail-content-type').html(encodeMyHtml(data.data.contentType));
+        $('#mail-content .mail-mime-version').html(encodeMyHtml(data.data.mimeversion));
+        $('#mail-content .mail-content-type').html(encodeMyHtml(data.data.contenttype));
         $('#mail-content .mail-reported').html(encodeMyHtml(data.data.rcpt));
         $('#mail-content .mail-bcc').html(encodeMyHtml(data.data.bcc));
         $('#mail-content #raw-pane textarea').val(data.data.data);
@@ -1052,7 +1052,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             $('#mail-box .mail-item').removeClass('active');
             const thisMail = $(this);
             const id = $(this).data('id');
-            const isRead = $(this).data('is-read');
+            const isread = $(this).data('is-read');
             $.ajax({
                 url: '/api/mails/' + id,
                 type: 'GET',

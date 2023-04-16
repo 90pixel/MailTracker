@@ -1,6 +1,10 @@
 # MailTracker
 
-![image](screenshot.png)
+login
+![image](screenshot-login.png)
+
+dashboard
+![image](screenshot-main.png)
 
 #### Running
 
