@@ -43,6 +43,9 @@
     </symbol>
 </svg>
 
+
+
+
 <div class="dropdown position-fixed bottom-0 end-0 mb-3 me-3 bd-mode-toggle">
     <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"
             id="bd-theme"
@@ -210,10 +213,18 @@
                 <a href="#"
                    class="d-flex align-items-center justify-content-center p-3 link-body-emphasis text-decoration-none dropdown-toggle"
                    data-bs-toggle="dropdown" aria-expanded="false">
-                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 64 64" version="1.1"><circle fill="#e76f51" width="64" height="64" cx="32" cy="32" r="32"/><text x="50%" y="50%" style="color: #ffffff;line-height: 1;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;" alignment-baseline="middle" text-anchor="middle" font-size="26" font-weight="400" dy=".1em" dominant-baseline="middle" fill="#ffffff" class="avatar-text">AB</text></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
+                         height="24px" viewBox="0 0 64 64" version="1.1">
+                        <circle fill="#e76f51" width="64" height="64" cx="32" cy="32" r="32"/>
+                        <text x="50%" y="50%"
+                              style="color: #ffffff;line-height: 1;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;"
+                              alignment-baseline="middle" text-anchor="middle" font-size="26" font-weight="400"
+                              dy=".1em" dominant-baseline="middle" fill="#ffffff" class="avatar-text">AB
+                        </text>
+                    </svg>
                 </a>
                 <ul class="dropdown-menu text-small shadow">
-                    <li><a class="dropdown-item" href="#">Profil</a></li>
+                    <li><a class="dropdown-item user-detail-btn" href="#">Profil</a></li>
                     <li>
                         <hr class="dropdown-divider">
                     </li>
@@ -227,7 +238,7 @@
         <div class="section section-mail active d-flex position-relative dj-slider overflow-hidden flex-column align-items-stretch flex-shrink-0 bg-body-tertiary"
              style="width: 380px;">
             <div class="position-relative dj-slide active mail-slide">
-                <span class="position-absolute  mt-3" style="right: 1rem; width: 25px; height: 50px"
+                <span class="position-absolute mt-3" style="right: 1rem; width: 25px; height: 50px"
                       title="Kurulum Rehberi"
                       data-bs-toggle="tooltip" data-bs-placement="bottom">
                    <a href="#settings" id="settings-btn">
@@ -248,7 +259,7 @@
                       stroke-linejoin="round"/></svg>
                    </a>
             </span>
-                <span class="position-absolute  mt-3" style="right: 3.5rem; width: 25px; height: 50px"
+                <span class="position-absolute mt-3" style="right: 3.5rem; width: 25px; height: 50px"
                       title="Yenile"
                       data-bs-toggle="tooltip" data-bs-placement="bottom">
                    <a href="#refresh" id="refresh-btn">
@@ -262,7 +273,7 @@
                                    stroke-linejoin="round"/></svg>
                    </a>
             </span>
-                <span class="position-absolute mt-3 d-block" style="right: 5.9rem; width: 25px; height: 50px"
+                <span class="position-absolute mt-3 d-block permission-field admin" style="right: 5.9rem; width: 25px; height: 50px"
                       title="Tümünü Sil"
                       data-bs-toggle="tooltip" data-bs-placement="bottom">
                   <a href="#delete" id="delete-all-btn">
@@ -280,7 +291,7 @@
 
         </a>
             </span>
-                <span class="position-absolute mt-3" style="right: 8.5rem; width: 25px; height: 50px"
+                <span class="position-absolute mt-3 permission-field admin" style="right: 8.5rem; width: 25px; height: 50px"
                       title="Okundu Olarak İşaretle"
                       data-bs-toggle="tooltip" data-bs-placement="bottom">
             <a href="#read-all" id="read-all-btn">
@@ -308,6 +319,45 @@
         <div class="section section-mail active b-example-divider b-example-vr"></div>
 
         <div class="section section-mail active d-flex flex-column flex-shrink-0 flex-grow-1 p-3 bg-body">
+            <header class="py-3 mb-3 border-bottom permission-field watcher">
+                <div class="container-fluid d-grid gap-3 align-items-center">
+                    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                        <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                            <svg width="32" stroke="currentColor" height="19" viewBox="0 0 88 53" fill="currentColor"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path d="M87.6842 41.6842V46.8947C85.8789 46.8947 83.8158 47.9368 81.4947 49.2395C78.9158 50.5421 76.0789 52.1053 72.9842 52.1053C69.8895 52.1053 67.0526 50.5421 64.4737 49.2395C62.1526 47.9368 60.0895 46.8947 58.2842 46.8947C56.4789 46.8947 54.4158 47.9368 52.0947 49.2395C49.5158 50.5421 46.6789 52.1053 43.5842 52.1053C40.4895 52.1053 37.6526 50.5421 35.0737 49.2395C33.0105 47.9368 30.9474 46.8947 29.1421 46.8947C27.3368 46.8947 25.2737 47.9368 22.9526 49.2395C20.3737 50.5421 17.5368 52.1053 14.4421 52.1053C11.3474 52.1053 8.51053 50.5421 5.93158 49.2395C3.86842 47.9368 1.80526 46.8947 0 46.8947V41.6842C1.80526 41.6842 3.61053 42.2053 5.15789 42.9868V18.4974L10.3158 22.6658V45.5921C11.8632 46.3737 13.4105 46.8947 14.7 46.8947C16.5053 46.8947 18.5684 45.8526 20.8895 44.55C23.4684 43.2474 26.3053 41.6842 29.4 41.6842C32.4947 41.6842 35.3316 43.2474 37.9105 44.55C40.2316 45.8526 42.2947 46.8947 44.1 46.8947C45.9053 46.8947 47.9684 45.8526 50.2895 44.55C52.8684 43.2474 55.7053 41.6842 58.8 41.6842C61.8947 41.6842 64.7316 43.2474 67.3105 44.55C69.6316 45.8526 71.6947 46.8947 73.5 46.8947C74.7895 46.8947 76.3368 46.3737 77.8842 45.5921V16.1526L47.4526 40.6421C46.1632 41.1632 45.1316 41.6842 43.8421 41.6842C42.5526 41.6842 41.521 41.1632 40.7474 40.6421L5.15789 11.9842V5.21053C5.15789 2.34474 7.47895 0 10.3158 0H77.3684C80.2053 0 82.5263 2.34474 82.5263 5.21053V42.9868C84.0737 42.2053 85.8789 41.6842 87.6842 41.6842ZM77.3684 9.37895V5.21053H10.3158V9.37895L43.8421 36.4737L77.3684 9.37895Z"/>
+                            </svg>
+                            <span class="fs-5" style="margin-left: 0.5rem">MailTracker</span>
+                        </a>
+
+                        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                        </ul>
+
+                        <div class="dropdown text-end">
+                            <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px"
+                                     height="24px" viewBox="0 0 64 64" version="1.1">
+                                    <circle fill="#e76f51" width="64" height="64" cx="32" cy="32" r="32"/>
+                                    <text x="50%" y="50%"
+                                          style="color: #ffffff;line-height: 1;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;"
+                                          alignment-baseline="middle" text-anchor="middle" font-size="26" font-weight="400"
+                                          dy=".1em" dominant-baseline="middle" fill="#ffffff" class="avatar-text">AB
+                                    </text>
+                                </svg>
+                            </a>
+                            <ul class="dropdown-menu text-small" style="">
+                                <li><a class="dropdown-item user-detail-btn" href="#">Profil</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item logout-btn" href="#">Çıkış</a></li>
+                            </ul>
+                        </div>
+
+
+                    </div>
+                </div>
+            </header>
             <div id="mail-content">
 
             </div>
@@ -373,7 +423,8 @@
                         <span>Bildirim Ayarları</span>
                     </div>
                     <div class="card-body">
-                        <p>Mailtracker, e-posta yönlendirme işlemini gerçekleştirdiğinizde, yönlendirilen e-posta adresine bildirim gönderir.</p>
+                        <p>Mailtracker, e-posta yönlendirme işlemini gerçekleştirdiğinizde, yönlendirilen e-posta
+                            adresine bildirim gönderir.</p>
                     </div>
                     <div class="card-body">
                         <!-- E-posta yönlendirme Aktif? -->
@@ -402,7 +453,10 @@
 </div>
 
 <theme id="mailbox-settings" class="d-none">
-    <div class="mail-item-content">
+    <div class="permission-field watcher position-relative w-100" style="height: 80vh">
+        <img src="/assets/img/watcher.svg" width="80%" height="100%" alt="" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+    </div>
+    <div class="mail-item-content  permission-field admin">
         <h1 class="h4 mb-3">SMTP Ayarları</h1>
         <p>Doğrudan e-posta istemcinizden veya posta aktarım aracınızdan mesaj göndermek için bu ayarları kullanın.</p>
         <!-- important note -->
@@ -550,7 +604,8 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                         frameborder="0" width="100%"></iframe>
             </div>
             <div class="tab-pane fade" id="html-inside-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
-                <pre style="height: 80vh; max-width: 230vh; overflow: auto;"><code class="html-inside language-html"></code></pre>
+                <pre style="height: 80vh; max-width: 230vh; overflow: auto;"><code
+                            class="html-inside language-html"></code></pre>
             </div>
             <div class="tab-pane fade" id="raw-pane" role="tabpanel" aria-labelledby="raw-tab" tabindex="0">
                 <textarea class="raw" cols="30" rows="10" style="min-height: 500px; height: 80vh; width: 100%"
@@ -890,7 +945,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
         $('.toploader').delay(1750).fadeOut(10);
         if (localStorage.token) {
             // get current user ajax
-            $(".permission-field").attr('style','display:none !important');
+            $(".permission-field").addClass('d-none');
             $.ajax({
                 url: '/api/users/me',
                 type: 'GET',
@@ -905,7 +960,8 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                 success: function (data) {
                     window.user = data.data;
                     $(".avatar-text").text(window.user.username.charAt(0).toUpperCase());
-                    $(".permission-field").attr('style','');
+                    $(".permission-field." + window.user.role).removeClass('d-none');
+
                     $('#main').show();
                     $('#login').hide();
                     getSettings();
