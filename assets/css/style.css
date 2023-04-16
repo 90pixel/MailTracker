@@ -58,7 +58,7 @@
 }
 
 .btn-bd-primary {
-    --bd-violet-bg: #712cf9;
+    --bd-violet-bg: #264653;
     --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
 
     --bs-btn-font-weight: 600;
@@ -66,12 +66,12 @@
     --bs-btn-bg: var(--bd-violet-bg);
     --bs-btn-border-color: var(--bd-violet-bg);
     --bs-btn-hover-color: var(--bs-white);
-    --bs-btn-hover-bg: #6528e0;
-    --bs-btn-hover-border-color: #6528e0;
+    --bs-btn-hover-bg: #2A9D8F;
+    --bs-btn-hover-border-color: #2A9D8F;
     --bs-btn-focus-shadow-rgb: var(--bd-violet-rgb);
     --bs-btn-active-color: var(--bs-btn-hover-color);
-    --bs-btn-active-bg: #5a23c8;
-    --bs-btn-active-border-color: #5a23c8;
+    --bs-btn-active-bg: #2A9D8F;
+    --bs-btn-active-border-color: #2A9D8F;
 }
 
 .bd-mode-toggle {
@@ -125,13 +125,13 @@
         right: 0%;
         left: 75%;
         width: 15%;
-        opacity: 0.80;
+        opacity: 0.30;
     }
     100% {
         left: 100%;
         right: 25%;
         width: 0%;
-        opacity: 0.50;
+        opacity: 0.10;
     }
 }
 
@@ -180,6 +180,7 @@ theme_color {
 }
 
 
-
-
+#awn-toast-container {
+    z-index: 999999 !important;
+}
 

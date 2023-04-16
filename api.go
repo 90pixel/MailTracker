@@ -155,7 +155,7 @@ func permissionCheck(c *gin.Context, role string) {
 	err = collection.FindOne(context.TODO(), bson.M{"salt": salt}).Decode(&user)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"message": "user not found",
+			"message": "Kullanıcı bulunamadı",
 		})
 	}
 
@@ -180,6 +180,7 @@ func main() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
+		return
 	}
 	client := connection(true)
 	router := gin.Default()
@@ -245,6 +246,7 @@ func main() {
 		err := collection.FindOne(context.TODO(), bson.M{"_id": objID}).Decode(&mail)
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
 		html := ""
 
@@ -278,6 +280,7 @@ func main() {
 		cur, err := collection.Find(context.TODO(), bson.D{}, opts)
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
 		// has empty result empty array
 		if cur.RemainingBatchLength() == 0 {
@@ -299,10 +302,12 @@ func main() {
 		}
 		if err := cur.Err(); err != nil {
 			log.Fatal(err)
+			return
 		}
 		err = cur.Close(context.TODO())
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"data": mails,
@@ -318,6 +323,7 @@ func main() {
 		err := collection.FindOne(context.TODO(), bson.M{"_id": objID}).Decode(&mail)
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
 		mail.Id = objID.Hex()
 		_, err = collection.UpdateOne(context.TODO(), bson.M{"_id": objID}, bson.D{
@@ -328,6 +334,7 @@ func main() {
 		})
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
 
 		c.JSON(http.StatusOK, gin.H{
@@ -342,6 +349,7 @@ func main() {
 		_, err := collection.DeleteOne(context.TODO(), bson.M{"_id": objID})
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Mail deleted",
@@ -353,6 +361,7 @@ func main() {
 		_, err := collection.DeleteMany(context.TODO(), bson.M{})
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"message": "All mails deleted",
@@ -369,6 +378,7 @@ func main() {
 		})
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"message": "All mails read",
@@ -414,6 +424,7 @@ func main() {
 		tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
 
 		c.JSON(
@@ -427,9 +438,9 @@ func main() {
 		)
 	})
 
-	permissionUserRouter := router.Group("/")
-	permissionUserRouter.Use(permissionCheckAdmin)
-	permissionUserRouter.GET("/api/users/me", func(c *gin.Context) {
+	permissionUserWatcherRouter := router.Group("/")
+	permissionUserWatcherRouter.Use(permissionCheckAuth)
+	permissionUserWatcherRouter.GET("/api/users/me", func(c *gin.Context) {
 
 		user, err := c.Get("currentUser")
 		if !err {
@@ -444,18 +455,23 @@ func main() {
 			"data": user,
 		})
 	})
-	permissionUserRouter.GET("/api/users", func(c *gin.Context) {
+
+	permissionUserAdminRouter := router.Group("/")
+	permissionUserAdminRouter.Use(permissionCheckAdmin)
+	permissionUserAdminRouter.GET("/api/users", func(c *gin.Context) {
 		var users []userListDto
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
 		cur, err := collection.Find(context.TODO(), bson.D{})
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
 		for cur.Next(context.TODO()) {
 			var user userListDto
 			err := cur.Decode(&user)
 			if err != nil {
 				log.Fatal(err)
+				return
 			}
 			user.Id = cur.Current.Lookup("_id").ObjectID().Hex()
 			user.Username = cur.Current.Lookup("username").StringValue()
@@ -465,18 +481,46 @@ func main() {
 		}
 		if err := cur.Err(); err != nil {
 			log.Fatal(err)
+			return
 		}
 		err = cur.Close(context.TODO())
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"data": users,
 		})
 	})
-	permissionUserRouter.POST("/api/users", func(c *gin.Context) {
+	permissionUserAdminRouter.POST("/api/users", func(c *gin.Context) {
 		var user userDto
 		c.BindJSON(&user)
+
+		// validate username length
+		if len(user.Username) < 3 {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"message": "Kullanıcı adı en az 3 karakter olmalıdır",
+			})
+			return
+		}
+		// Regex to validate password strength
+
+		secure := true
+		tests := []string{".{7,}", "[a-z]", "[A-Z]", "[0-9]", "[^\\d\\w]"}
+		for _, test := range tests {
+			t, _ := regexp.MatchString(test, user.Password)
+			if !t {
+				secure = false
+				break
+			}
+		}
+
+		if secure == false {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"message": "Parola en az 8 karakter uzunluğunda olmalıdır, en az bir büyük harf, bir küçük harf, bir sayı ve bir özel karakter içermelidir",
+			})
+			return
+		}
 
 		rand.Seed(time.Now().UnixNano())
 		b := make([]byte, 10+2)
@@ -484,9 +528,23 @@ func main() {
 		salt := fmt.Sprintf("%x", b)[2 : 10+2]
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
 
+		var userExists userDto
+		c.ShouldBindJSON(&userExists)
+		err = collection.FindOne(context.TODO(), bson.M{"username": user.Username}).Decode(&userExists)
+		if err != nil {
+			if err != mongo.ErrNoDocuments {
+				log.Fatal(err)
+			}
+		}
+		if userExists.Username != "" {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"message": "Kullanıcı adı zaten kullanılıyor",
+			})
+		}
+
 		hashPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.MinCost)
 		if err != nil {
-			log.Println(err)
+			log.Fatal(err)
 		}
 
 		index := []mongo.IndexModel{
@@ -501,7 +559,9 @@ func main() {
 		opts := options.CreateIndexes().SetMaxTime(10 * time.Second)
 		_, err = collection.Indexes().CreateMany(context.TODO(), index, opts)
 		if err != nil {
-			panic(err)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Hata oluştu",
+			})
 		}
 
 		_, err = collection.InsertOne(context.TODO(), bson.D{
@@ -512,34 +572,83 @@ func main() {
 			{"createdat", time.Now().UTC().String()},
 		})
 		if err != nil {
-			log.Fatal(err)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "Hata oluştu",
+			})
 		}
-
+		c.Writer.WriteHeader(http.StatusOK)
 		c.JSON(http.StatusOK, gin.H{
 			"message": "User created",
 		})
 	})
-	permissionUserRouter.DELETE("/api/users/:id", func(c *gin.Context) {
+	permissionUserAdminRouter.DELETE("/api/users/:id", func(c *gin.Context) {
 		objID, _ := primitive.ObjectIDFromHex(c.Param("id"))
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
 		_, err := collection.DeleteOne(context.TODO(), bson.M{"_id": objID})
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"message": "User deleted",
 		})
 	})
 	// update user
-	permissionUserRouter.PUT("/api/users/:id", func(c *gin.Context) {
+	permissionUserAdminRouter.PUT("/api/users/:id", func(c *gin.Context) {
 		objID, _ := primitive.ObjectIDFromHex(c.Param("id"))
 		var user userDto
 		c.BindJSON(&user)
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
 
-		_, err := collection.UpdateOne(context.TODO(), bson.M{"_id": objID}, bson.D{
+		// validate username length
+		if len(user.Username) < 3 {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"message": "Kullanıcı adı en az 3 karakter olmalıdır",
+			})
+			return
+		}
+
+		if user.Password != "" {
+			secure := true
+			tests := []string{".{7,}", "[a-z]", "[A-Z]", "[0-9]", "[^\\d\\w]"}
+			for _, test := range tests {
+				t, _ := regexp.MatchString(test, user.Password)
+				if !t {
+					secure = false
+					break
+				}
+			}
+			if secure == false {
+				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+					"message": "Parola en az 8 karakter uzunluğunda olmalıdır, en az bir büyük harf, bir küçük harf, bir sayı ve bir özel karakter içermelidir",
+				})
+				return
+			}
+		}
+
+		// check if user exists
+		var userExists userDto
+		err := c.ShouldBindJSON(&userExists)
+		if err != nil {
+			log.Println("No extras provided")
+		}
+		err = collection.FindOne(context.TODO(), bson.M{"username": user.Username, "_id": bson.M{"$ne": objID}}).Decode(&userExists)
+		if err != nil {
+			if err != mongo.ErrNoDocuments {
+				log.Fatal(err)
+			}
+		}
+		if userExists.Username != "" {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"message": "Kullanıcı adı zaten kullanılıyor",
+			})
+			return
+		}
+
+		_, err = collection.UpdateOne(context.TODO(), bson.M{"_id": objID}, bson.D{
 			{"$set", bson.D{
 				{"username", user.Username},
+				{"role", user.Role},
 			},
 			},
 		})
@@ -552,6 +661,7 @@ func main() {
 			hashPassword, err := io.WriteString(h, user.Password)
 			if err != nil {
 				log.Fatal(err)
+				return
 			}
 			_, err = collection.UpdateOne(context.TODO(), bson.M{"_id": objID}, bson.D{
 				{"$set", bson.D{
@@ -563,9 +673,28 @@ func main() {
 				log.Fatal(err)
 			}
 		}
-
+		c.Writer.WriteHeader(http.StatusOK)
 		c.JSON(http.StatusOK, gin.H{
 			"message": "User updated",
+		})
+	})
+	permissionUserAdminRouter.GET("/api/users/:id", func(c *gin.Context) {
+		objID, _ := primitive.ObjectIDFromHex(c.Param("id"))
+		var user userListDto
+		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
+		err := collection.FindOne(context.TODO(), bson.M{"_id": objID}).Decode(&user)
+		if err != nil {
+			if err == mongo.ErrNoDocuments {
+				c.JSON(http.StatusNotFound, gin.H{
+					"message": "Kullanıcı bulunamadı",
+				})
+				return
+			} else {
+				log.Fatal(err)
+			}
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"data": user,
 		})
 	})
 

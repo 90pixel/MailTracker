@@ -18,6 +18,9 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
     <link rel="manifest" href="/assets/favicon/site.webmanifest">
     <link rel="shortcut icon" href="/assets/favicon/favicon.ico">
+    <!-- bower -->
+    <link rel="stylesheet" href="/assets/libs/highlight/styles/dark.min.css">
+    <link rel="stylesheet" href="/assets/libs/highlight/styles/agate.min.css">
 
 </head>
 <body>
@@ -131,8 +134,9 @@
                 </svg>
             </div>
             <div class="w-100 h-100 text-center d-none d-md-flex text-white align-items-center d-flex justify-content-center position-relative z-1">
-                <svg viewbox="0 0 32 32" width="20%" height="20%" stroke="#FFF" fill="#FFF">
-                    <path d="M32 2.7H5.3v21.3h26.7V2.7zM8 21.3V5.3h21.3v16H8zM2.7 9.3H0v20h25.3v-2.6H2.7V9.3z m10.6-1.3H10.7v2.7h2.6v2.6h2.7v2.7h5.3v-2.7h2.7V10.7h2.7V8h-2.7v2.7h-2.7v2.6h-5.3V10.7h-2.7V8z"/>
+                <svg width="20%" height="12%" viewBox="0 0 88 53" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M87.6842 41.6842V46.8947C85.8789 46.8947 83.8158 47.9368 81.4947 49.2395C78.9158 50.5421 76.0789 52.1053 72.9842 52.1053C69.8895 52.1053 67.0526 50.5421 64.4737 49.2395C62.1526 47.9368 60.0895 46.8947 58.2842 46.8947C56.4789 46.8947 54.4158 47.9368 52.0947 49.2395C49.5158 50.5421 46.6789 52.1053 43.5842 52.1053C40.4895 52.1053 37.6526 50.5421 35.0737 49.2395C33.0105 47.9368 30.9474 46.8947 29.1421 46.8947C27.3368 46.8947 25.2737 47.9368 22.9526 49.2395C20.3737 50.5421 17.5368 52.1053 14.4421 52.1053C11.3474 52.1053 8.51053 50.5421 5.93158 49.2395C3.86842 47.9368 1.80526 46.8947 0 46.8947V41.6842C1.80526 41.6842 3.61053 42.2053 5.15789 42.9868V18.4974L10.3158 22.6658V45.5921C11.8632 46.3737 13.4105 46.8947 14.7 46.8947C16.5053 46.8947 18.5684 45.8526 20.8895 44.55C23.4684 43.2474 26.3053 41.6842 29.4 41.6842C32.4947 41.6842 35.3316 43.2474 37.9105 44.55C40.2316 45.8526 42.2947 46.8947 44.1 46.8947C45.9053 46.8947 47.9684 45.8526 50.2895 44.55C52.8684 43.2474 55.7053 41.6842 58.8 41.6842C61.8947 41.6842 64.7316 43.2474 67.3105 44.55C69.6316 45.8526 71.6947 46.8947 73.5 46.8947C74.7895 46.8947 76.3368 46.3737 77.8842 45.5921V16.1526L47.4526 40.6421C46.1632 41.1632 45.1316 41.6842 43.8421 41.6842C42.5526 41.6842 41.521 41.1632 40.7474 40.6421L5.15789 11.9842V5.21053C5.15789 2.34474 7.47895 0 10.3158 0H77.3684C80.2053 0 82.5263 2.34474 82.5263 5.21053V42.9868C84.0737 42.2053 85.8789 41.6842 87.6842 41.6842ZM77.3684 9.37895V5.21053H10.3158V9.37895L43.8421 36.4737L77.3684 9.37895Z"
+                          fill="#FFF"/>
                 </svg>
                 <h1 class="p-3">MailTracker</h1>
             </div>
@@ -163,11 +167,12 @@
 <div id="main" style="display:none;">
     <main class="d-flex flex-nowrap">
 
-        <div class="d-flex flex-column flex-shrink-0 bg-body-tertiary" style="width: 4.5rem;">
-            <a href="/" class="d-block p-3 link-body-emphasis text-decoration-none" title="{{ .title }}"
+        <div class="d-flex flex-column permission-field admin flex-shrink-0 bg-body-tertiary" style="width: 4.5rem;">
+            <a href="/" class="d-block p-3 text-center link-body-emphasis text-decoration-none" title="{{ .title }}"
                data-bs-toggle="tooltip" data-bs-placement="right">
-                <svg viewbox="0 0 32 32" width="32" height="32" stroke="currentColor" fill="currentColor">
-                    <path d="M32 2.7H5.3v21.3h26.7V2.7zM8 21.3V5.3h21.3v16H8zM2.7 9.3H0v20h25.3v-2.6H2.7V9.3z m10.6-1.3H10.7v2.7h2.6v2.6h2.7v2.7h5.3v-2.7h2.7V10.7h2.7V8h-2.7v2.7h-2.7v2.6h-5.3V10.7h-2.7V8z"/>
+                <svg width="32" stroke="currentColor" height="19" viewBox="0 0 88 53" fill="currentColor"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path d="M87.6842 41.6842V46.8947C85.8789 46.8947 83.8158 47.9368 81.4947 49.2395C78.9158 50.5421 76.0789 52.1053 72.9842 52.1053C69.8895 52.1053 67.0526 50.5421 64.4737 49.2395C62.1526 47.9368 60.0895 46.8947 58.2842 46.8947C56.4789 46.8947 54.4158 47.9368 52.0947 49.2395C49.5158 50.5421 46.6789 52.1053 43.5842 52.1053C40.4895 52.1053 37.6526 50.5421 35.0737 49.2395C33.0105 47.9368 30.9474 46.8947 29.1421 46.8947C27.3368 46.8947 25.2737 47.9368 22.9526 49.2395C20.3737 50.5421 17.5368 52.1053 14.4421 52.1053C11.3474 52.1053 8.51053 50.5421 5.93158 49.2395C3.86842 47.9368 1.80526 46.8947 0 46.8947V41.6842C1.80526 41.6842 3.61053 42.2053 5.15789 42.9868V18.4974L10.3158 22.6658V45.5921C11.8632 46.3737 13.4105 46.8947 14.7 46.8947C16.5053 46.8947 18.5684 45.8526 20.8895 44.55C23.4684 43.2474 26.3053 41.6842 29.4 41.6842C32.4947 41.6842 35.3316 43.2474 37.9105 44.55C40.2316 45.8526 42.2947 46.8947 44.1 46.8947C45.9053 46.8947 47.9684 45.8526 50.2895 44.55C52.8684 43.2474 55.7053 41.6842 58.8 41.6842C61.8947 41.6842 64.7316 43.2474 67.3105 44.55C69.6316 45.8526 71.6947 46.8947 73.5 46.8947C74.7895 46.8947 76.3368 46.3737 77.8842 45.5921V16.1526L47.4526 40.6421C46.1632 41.1632 45.1316 41.6842 43.8421 41.6842C42.5526 41.6842 41.521 41.1632 40.7474 40.6421L5.15789 11.9842V5.21053C5.15789 2.34474 7.47895 0 10.3158 0H77.3684C80.2053 0 82.5263 2.34474 82.5263 5.21053V42.9868C84.0737 42.2053 85.8789 41.6842 87.6842 41.6842ZM77.3684 9.37895V5.21053H10.3158V9.37895L43.8421 36.4737L77.3684 9.37895Z"/>
                 </svg>
 
                 <span class="visually-hidden">Icon-only</span>
@@ -205,7 +210,7 @@
                 <a href="#"
                    class="d-flex align-items-center justify-content-center p-3 link-body-emphasis text-decoration-none dropdown-toggle"
                    data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="https://github.com/mdo.png" alt="mdo" width="24" height="24" class="rounded-circle">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24px" height="24px" viewBox="0 0 64 64" version="1.1"><circle fill="#e76f51" width="64" height="64" cx="32" cy="32" r="32"/><text x="50%" y="50%" style="color: #ffffff;line-height: 1;font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;" alignment-baseline="middle" text-anchor="middle" font-size="26" font-weight="400" dy=".1em" dominant-baseline="middle" fill="#ffffff" class="avatar-text">AB</text></svg>
                 </a>
                 <ul class="dropdown-menu text-small shadow">
                     <li><a class="dropdown-item" href="#">Profil</a></li>
@@ -217,7 +222,7 @@
             </div>
         </div>
 
-        <div class="b-example-divider b-example-vr"></div>
+        <div class="b-example-divider permission-field admin b-example-vr"></div>
 
         <div class="section section-mail active d-flex position-relative dj-slider overflow-hidden flex-column align-items-stretch flex-shrink-0 bg-body-tertiary"
              style="width: 380px;">
@@ -302,21 +307,25 @@
 
         <div class="section section-mail active b-example-divider b-example-vr"></div>
 
-        <div class="section section-mail active d-flex flex-column flex-shrink-0 p-3 bg-body" style="width: 70%;">
+        <div class="section section-mail active d-flex flex-column flex-shrink-0 flex-grow-1 p-3 bg-body">
             <div id="mail-content">
 
             </div>
-
         </div>
 
-        <div class="section section-user d-flex flex-column flex-shrink-0 p-3 bg-body" style="width: 80%;">
+        <div class="section section-user d-flex flex-column flex-shrink-0 flex-grow-1 p-3 bg-body">
             <h1 class="h4 mb-4 mt-4">Kullanıcılar</h1>
 
             <div class="row mb-4">
                 <div class="col-10"></div>
                 <div class="col-2" style="text-align: right">
-                    <a hrwef="#" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#userModal">
-                        <svg  viewbox="0 0 32 32" style="width: 1rem; height:1rem;" stroke="currentColor" fill="currentColor"><path d="M8.3 8.5C8.3 5.5 10.8 3 13.8 3 16.9 3 19.3 5.5 19.3 8.5 19.3 11.5 16.9 14 13.8 14 10.8 14 8.3 11.5 8.3 8.5Z"  /><path d="M4.3 25.5C4.3 20.3 8.6 16 13.8 16 19.1 16 23.3 20.3 23.3 25.5V25.5C23.3 25.6 23.3 25.6 23.3 25.7 23.3 26 23.1 26.3 22.8 26.5 20.2 28.1 17.1 29 13.8 29 10.5 29 7.5 28.1 4.8 26.5 4.5 26.3 4.3 26 4.3 25.7 4.3 25.6 4.3 25.6 4.3 25.5Z"  /><path d="M26.3 10C26.3 9.4 25.9 9 25.3 9 24.8 9 24.3 9.4 24.3 10V13H21.3C20.8 13 20.3 13.4 20.3 14 20.3 14.6 20.8 15 21.3 15H24.3V18C24.3 18.6 24.8 19 25.3 19 25.9 19 26.3 18.6 26.3 18V15H29.3C29.9 15 30.3 14.6 30.3 14 30.3 13.4 29.9 13 29.3 13H26.3V10Z"  /></svg>
+                    <a hrwef="#" class="btn btn-primary mb-3 create-new-user" data-bs-toggle="modal">
+                        <svg viewbox="0 0 32 32" style="width: 1rem; height:1rem;" stroke="currentColor"
+                             fill="currentColor">
+                            <path d="M8.3 8.5C8.3 5.5 10.8 3 13.8 3 16.9 3 19.3 5.5 19.3 8.5 19.3 11.5 16.9 14 13.8 14 10.8 14 8.3 11.5 8.3 8.5Z"/>
+                            <path d="M4.3 25.5C4.3 20.3 8.6 16 13.8 16 19.1 16 23.3 20.3 23.3 25.5V25.5C23.3 25.6 23.3 25.6 23.3 25.7 23.3 26 23.1 26.3 22.8 26.5 20.2 28.1 17.1 29 13.8 29 10.5 29 7.5 28.1 4.8 26.5 4.5 26.3 4.3 26 4.3 25.7 4.3 25.6 4.3 25.6 4.3 25.5Z"/>
+                            <path d="M26.3 10C26.3 9.4 25.9 9 25.3 9 24.8 9 24.3 9.4 24.3 10V13H21.3C20.8 13 20.3 13.4 20.3 14 20.3 14.6 20.8 15 21.3 15H24.3V18C24.3 18.6 24.8 19 25.3 19 25.9 19 26.3 18.6 26.3 18V15H29.3C29.9 15 30.3 14.6 30.3 14 30.3 13.4 29.9 13 29.3 13H26.3V10Z"/>
+                        </svg>
                         Kullanıcı Ekle
                     </a>
                 </div>
@@ -338,7 +347,7 @@
                             </thead>
                             <tbody id="user-table">
                             <tr>
-                                <td colspan="4" class="p-4" style="text-align: center"> Kayıt Bulunamadı </td>
+                                <td colspan="4" class="p-4" style="text-align: center"> Kayıt Bulunamadı</td>
                             </tr>
                             </tbody>
                         </table>
@@ -349,12 +358,46 @@
             </div>
         </div>
 
-        <div class="section section-settings d-flex flex-column flex-shrink-0 p-3 bg-body" style="width: 80%;">
-            <h5>Ayarlar</h5>
-            <div id="settings-content">
+        <div class="section section-settings d-flex flex-column flex-shrink-0 flex-grow-1 p-3 bg-body">
+            <h1 class="h4 mb-4 mt-4">Ayarlar</h1>
 
+            <div class="row mb-4">
+                <div class="col">
+
+                </div>
+            </div>
+            <div id="settings-content">
+                <!-- email yonlendirme -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <span>Bildirim Ayarları</span>
+                    </div>
+                    <div class="card-body">
+                        <p>Mailtracker, e-posta yönlendirme işlemini gerçekleştirdiğinizde, yönlendirilen e-posta adresine bildirim gönderir.</p>
+                    </div>
+                    <div class="card-body">
+                        <!-- E-posta yönlendirme Aktif? -->
+                        <div class="form-group mb-4">
+                            <label for="email-forwarding-enabled" class="form-label">Bildirimler aktif mi?</label>
+                            <select class="form-control" id="email-forwarding-enabled">
+                                <option value="1">Evet</option>
+                                <option value="0">Hayır</option>
+                            </select>
+                        </div>
+                        <!-- E-posta yönlendirme Adresi -->
+                        <div class="form-group mb-4">
+                            <label for="email-forwarding-address" class="form-label">E-Posta adresi</label>
+                            <input type="text" class="form-control" id="email-forwarding-address"
+                                   placeholder="E-posta adresi">
+                        </div>
+                        <!-- E-posta yönlendirme Kaydet -->
+                        <button type="button" class="btn btn-primary" id="email-forwarding-save">Kaydet</button>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <div class="b-example-divider b-example-vr"></div>
     </main>
 </div>
 
@@ -507,7 +550,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                         frameborder="0" width="100%"></iframe>
             </div>
             <div class="tab-pane fade" id="html-inside-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
-                <pre style="height: 80vh; overflow-x: auto;"><code class="html-inside language-html"></code></pre>
+                <pre style="height: 80vh; max-width: 230vh; overflow: auto;"><code class="html-inside language-html"></code></pre>
             </div>
             <div class="tab-pane fade" id="raw-pane" role="tabpanel" aria-labelledby="raw-tab" tabindex="0">
                 <textarea class="raw" cols="30" rows="10" style="min-height: 500px; height: 80vh; width: 100%"
@@ -586,12 +629,10 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
     </div>
 </theme>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-<script src="/assets/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="/assets/js/sidebars.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/dark.min.css">
-
-<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<script src="/assets/libs/highlight/highlight.min.js"></script>
 <script src="/assets/libs/awesome-notifications/index.js"></script>
 <script src="/assets/libs/awesome-notifications/index.js"></script>
 <script src="/assets/libs/awesome-notifications/index.var.js"></script>
@@ -623,7 +664,9 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
     });
 
     window.activeMail = null;
+    window.section = null;
     window.generatedLoop = false;
+    window.user = null;
 
     function timeAgo(time) {
 
@@ -682,7 +725,8 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
         return time;
     }
 
-    function getUsers() {
+    function getAllUsers() {
+        window.section = 'section-user';
         // loader
         $('.toploader').show();
         $.ajax({
@@ -696,7 +740,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             },
             success: function (data) {
                 // when empty data show empty message
-                $('.toploader').delay(1600).fadeOut(10);
+                $('.toploader').delay(1750).fadeOut(10);
 
                 $('#user-content tbody').html('');
 
@@ -718,7 +762,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                             <td>${value.role}</td>
                             <td>${value.createdat}</td>
                             <td>
-                                <button class="btn btn-sm btn-danger delete-user" data-id="${value.id}">Sil</button>
+                                <button class="btn btn-sm btn-danger text-light delete-user" data-id="${value.id}">Sil</button>
                                 <button class="btn btn-sm btn-warning edit-user" data-id="${value.id}">Düzenle</button>
                             </td>
                         </tr>
@@ -735,6 +779,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
     }
 
     function getAllMails() {
+        window.section = 'section-mail';
         // loader
         $('.toploader').show();
         $.ajax({
@@ -748,7 +793,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             },
             success: function (data) {
                 // when empty data show empty message
-                $('.toploader').delay(1600).fadeOut(10);
+                $('.toploader').delay(1750).fadeOut(10);
                 $('#mail-box').html('');
                 if (data.data === null || data.data === 0) {
                     $('#mail-box').html(`
@@ -842,24 +887,103 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
     }
 
     function checkLogin() {
-        $('.toploader').delay(1600).fadeOut(10);
+        $('.toploader').delay(1750).fadeOut(10);
         if (localStorage.token) {
-            $('#main').show();
-            $('#login').hide();
-            getSettings();
-            getAllMails();
-            if (!window.generatedLoop) {
-                setInterval(function () {
+            // get current user ajax
+            $(".permission-field").attr('style','display:none !important');
+            $.ajax({
+                url: '/api/users/me',
+                type: 'GET',
+                dataType: 'json',
+                contentType: "application/json",
+                accept: "application/json",
+                beforeSend: function (xhr) {
                     if (localStorage.token) {
-                        getAllMails();
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.token);
                     }
-                }, 20000);
-                window.generatedLoop = true
-            }
+                },
+                success: function (data) {
+                    window.user = data.data;
+                    $(".avatar-text").text(window.user.username.charAt(0).toUpperCase());
+                    $(".permission-field").attr('style','');
+                    $('#main').show();
+                    $('#login').hide();
+                    getSettings();
+                    getAllMails();
+                    if (!window.generatedLoop) {
+                        setInterval(function () {
+                            if (localStorage.token && window.section === 'section-mail') {
+                                getAllMails();
+                            }
+                        }, 20000);
+                        window.generatedLoop = true
+                    }
+                },
+                error: function (data) {
+                    $('#main').hide();
+                    $('#login').show();
+                    if (401 === data.status && data.responseJSON.message) {
+                        notifier.warning(data.responseJSON.message);
+                    }
+                }
+            });
         } else {
             $('#main').hide();
             $('#login').show();
         }
+    }
+
+    function userModal(id = null, username = null, role = null) {
+
+        let options = {
+            replacements: {
+                modal: {
+                    '{id}': id ? id : '',
+                    '{username}': username ? username : '',
+                }
+            }
+        };
+
+        let title = 'Yeni kullanıcı oluştur';
+        if (id) {
+            title = 'Kullanıcı düzenle';
+        }
+
+        const roles = [
+            {id: 'watcher', name: 'İzleyici', selected: role === 'watcher' ? 'selected' : ''},
+            {id: 'admin', name: 'Yönetici', selected: role === 'admin' ? 'selected' : ''},
+        ];
+
+        new AWN().modal(
+            '<h5 class="mb-4">' + title + '</h5>' +
+            '<form id="create-or-edit-user-form">' +
+            '<div class="form-group mb-4">' +
+            '<input type="hidden" name="id" value="{id}">' +
+            '<label for="user_username">Kullanıcı adı</label>' +
+            '<input type="text" class="form-control" id="user_username" name="username" value="{username}" required placeholder="Kullanıcı adı">' +
+            '</div>' +
+            '<div class="form-group mb-4">' +
+            '<label for="user_password">Şifre</label>' +
+            '<input type="password" class="form-control" id="user_password"  name="password" ' + (id ? '' : 'required') + ' placeholder="Şifre">' +
+            '</div>' +
+            '<div class="form-group mb-4">' +
+            '<label for="user_password_confirmation">Şifre tekrar</label>' +
+            '<input type="password" class="form-control"  ' + (id ? '' : 'required') + ' id="user_password_confirmation" name="password2" placeholder="Şifre tekrar">' +
+            '</div>' +
+            '<div class="form-group mb-4">' +
+            '<label for="user_role">Rol</label>' +
+            '<select class="form-control" id="user_role" required name="role">' +
+            '<option value="">Seçiniz</option>' +
+            roles.map(function (role) {
+                return '<option value="' + role.id + '" ' + role.selected + '>' + role.name + '</option>'
+            }).join('') +
+            '</select>' +
+            '</div>' +
+            '<button type="submit" class="btn btn-primary">Kaydet</button>' +
+            '</form>',
+            'modal-tiny bg-dark',
+            options
+        )
     }
 
     $(function () {
@@ -870,10 +994,11 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             $(this).addClass('active');
             $(".section").removeClass('active');
             const id = $(this).attr('href');
+            window.section = id;
             if (id === 'section-settings') {
                 // getGlobalSettings();
             } else if (id === 'section-user') {
-                getUsers();
+                getAllUsers();
             } else if (id === 'section-mail') {
                 getSettings();
                 getAllMails();
@@ -1035,6 +1160,119 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                 })
             });
         });
+
+        /* USER : start */
+        $(".create-new-user").on("click", function (e) {
+            e.preventDefault();
+            userModal(null, null, null);
+        });
+
+        $("#user-table").on("click", ".edit-user", function (e) {
+            e.preventDefault();
+            const id = $(this).data('id');
+            $.ajax({
+                url: '/api/users/' + id,
+                type: 'GET',
+                dataType: 'json',
+                contentType: "application/json",
+                accept: "application/json",
+                beforeSend: function (xhr) {
+                    if (localStorage.token) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.token);
+                    }
+                },
+                success: function (data) {
+                    userModal(id, data.data.username, data.data.role);
+                },
+                error: function (data) {
+                    if (401 === data.status && data.responseJSON.message) {
+                        notifier.warning(data.responseJSON.message);
+                    }
+                }
+            })
+        });
+
+        $("#user-table").on("click", ".delete-user", function (e) {
+            const id = $(this).data('id');
+            // delete user confirm
+            notifier.confirm('Bu kullanıcıyı silmek istediğinize emin misiniz?', function () {
+                $.ajax({
+                    url: '/api/users/' + id,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    contentType: "application/json",
+                    accept: "application/json",
+                    beforeSend: function (xhr) {
+                        if (localStorage.token) {
+                            xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.token);
+                        }
+                    },
+                    success: function (data) {
+                        notifier.success('Kullanıcı silindi');
+                        getAllUsers();
+                    },
+                    error: function (data) {
+                        if (401 === data.status && data.responseJSON.message) {
+                            notifier.warning(data.responseJSON.message);
+                        }
+                    }
+                })
+            })
+        });
+
+        $("body").on("submit", "#create-or-edit-user-form", function (e) {
+            e.preventDefault();
+            const id = $('#create-or-edit-user-form input[name="id"]').val();
+            const username = $('#create-or-edit-user-form input[name="username"]').val();
+            const password = $('#create-or-edit-user-form input[name="password"]').val();
+            const password2 = $('#create-or-edit-user-form input[name="password2"]').val();
+            if (password !== password2) {
+                notifier.warning('Şifreler uyuşmuyor');
+                return;
+            }
+            const role = $('#create-or-edit-user-form select[name="role"]').val();
+            const data = {
+                username: username,
+                password: password,
+                role: role
+            };
+            let endpoint = '/api/users';
+            if (id) {
+                data.id = id;
+                endpoint += '/' + id;
+            }
+            $.ajax({
+                url: endpoint,
+                type: id ? 'PUT' : 'POST',
+                dataType: 'json',
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                accept: "application/json",
+                beforeSend: function (xhr) {
+                    if (localStorage.token) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.token);
+                    }
+                },
+                success: function (data) {
+                    notifier.success('Kullanıcı kaydedildi');
+                    getAllUsers();
+                    $("#awn-popup-wrapper").fadeOut(300, function () {
+                        $(this).remove();
+                    });
+                },
+                error: function (data) {
+                    if (401 === data.status && data.responseJSON.message) {
+                        notifier.warning(data.responseJSON.message);
+                    }
+                    if (400 === data.status && data.responseJSON.message) {
+                        notifier.warning(data.responseJSON.message);
+                    }
+                }
+            })
+        });
+
+        /* USER : end */
+
 
     });
 </script>
