@@ -386,6 +386,43 @@
             </div>
         </div>
 
+        <div class="section section-support d-flex flex-column flex-shrink-0 flex-grow-1 p-3 bg-body">
+            <h1 class="h4 mb-4 mt-4">Destek Talepleri</h1>
+
+            <div class="row mb-4">
+                <div class="col-10"></div>
+                <div class="col-2" style="text-align: right">
+                </div>
+            </div>
+
+            <div id="support-content">
+
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th scope="col">Id</th>
+                                <th scope="col">Konu</th>
+                                <th scope="col">Kullanıcı</th>
+                                <th scope="col">Durum</th>
+                                <th scope="col">Oluşturulma Tarihi</th>
+                                <th scope="col" width="200">İşlemler</th>
+                            </tr>
+                            </thead>
+                            <tbody id="support-table">
+                            <tr>
+                                <td colspan="6" class="p-4" style="text-align: center"> Kayıt Bulunamadı</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
         <div class="section section-user d-flex flex-column flex-shrink-0 flex-grow-1 p-3 bg-body">
             <h1 class="h4 mb-4 mt-4">Kullanıcılar</h1>
 
@@ -484,8 +521,8 @@
                     <div class="card-body h-100">
                         <!-- Yeni Destek Talebi -->
                         <center>
-                            <a href="https://mailtracker.app/support" target="_blank" id="create-new-ticket"
-                               class="btn float-none float-md-end btn-primary mb-3">
+                            <a href="https://mailtracker.app/support" target="_blank"
+                               class="btn float-none float-md-end btn-primary mb-3 create-new-ticket">
                                 <svg  viewbox="0 0 32 32" width="16" height="16" stroke="currentColor" fill="currentColor"><path d="M16.4 10.6L6.3 20.7C5.7 21.2 5.4 21.9 5.3 22.5L5.3 26.7 9.4 26.7C10.1 26.6 10.8 26.3 11.3 25.7L21.4 15.6 16.4 10.6ZM18.3 8.7L23.3 13.7 26.5 10.5C26.6 10.4 26.7 10.3 26.7 10.1 26.7 9.9 26.6 9.8 26.5 9.7L22.3 5.5C22.2 5.4 22.1 5.3 21.9 5.3 21.8 5.3 21.6 5.4 21.5 5.5L18.3 8.7ZM21.9 2.7C22.8 2.7 23.6 3 24.2 3.6L28.4 7.8C29 8.4 29.3 9.2 29.3 10.1 29.3 11 29 11.8 28.4 12.4L13.3 27.5C12.3 28.6 11 29.2 9.5 29.3L2.7 29.3 2.7 28 2.7 22.4C2.8 21 3.4 19.7 4.4 18.8L19.6 3.6C20.2 3 21 2.7 21.9 2.7Z" _id="63ce595602ed90a9403cd31a" _parent="63ce595602ed90a9403cd319" fill-rule="evenodd" /></svg>
                                 Yeni Destek Talebi
                             </a>
@@ -494,10 +531,10 @@
                         <table class="table table-striped h-90">
                             <thead>
                             <tr>
-                                <th scope="col">Id</th>
-                                <th scope="col">Tarih</th>
                                 <th scope="col">Konu</th>
                                 <th scope="col">Durum</th>
+                                <th scope="col">Tarih</th>
+                                <th scope="col">İşlemler</th>
                             </tr>
                             </thead>
                             <tbody class="support-table h-100 overflow-y-scroll">
@@ -840,6 +877,72 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
         return time;
     }
 
+    function getAllTickets() {
+        window.section = 'section-support';
+        // loader
+        $('.toploader').show();
+        $.ajax({
+            url: '/api/supports',
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function (xhr) {
+                if (localStorage.token) {
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.token);
+                }
+            },
+            success: function (data) {
+                // when empty data show empty message
+                $('.toploader').delay(1750).fadeOut(10);
+
+                $('#support-content tbody').html('');
+
+                if (data.data === null || data.data === 0) {
+                    $('#support-content tbody').append(`
+                        <tr>
+                            <td colspan="6" class="text-center">Destek talebi bulunamadı.</td>
+                        </tr>
+                    `);
+                    return;
+                }
+                // loop data
+                $.each(data.data, function (index, value) {
+
+                    if (value.status === "closed") {
+                        value.status = '<span class="badge bg-danger">Kapalı</span>';
+                    } else if (value.status === "open") {
+                        value.status = '<span class="badge bg-warning text-dark">Açık</span>';
+                    } else if (value.status === "pending") {
+                        value.status = '<span class="badge bg-info">Beklemede</span>';
+                    } else if (value.status === "inprogress") {
+                        value.status = '<span class="badge bg-primary">İşlemde</span>';
+                    } else if (value.status === "resolved") {
+                        value.status = '<span class="badge bg-success">Çözüldü</span>';
+                    }
+
+                    $('#support-content tbody').append(`
+                        <tr>
+                            <td class="user-id">${value.id}</td>
+                            <td>${value.subject}</td>
+                            <td>${value.username}</td>
+                            <td>${value.status}</td>
+                            <td>${value.createdat}</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger text-light delete-user" data-id="${value.id}">Sil</button>
+                                <button class="btn btn-sm btn-warning edit-user" data-id="${value.id}">Düzenle</button>
+                            </td>
+                        </tr>
+                    `);
+
+                });
+                // remove loader
+                $('#loader').remove();
+            },
+            error: function (data) {
+                console.log(data)
+            }
+        });
+    }
+
     function getAllUsers() {
         window.section = 'section-user';
         // loader
@@ -954,7 +1057,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
         if (user && user.role == "watcher") {
             $('.toploader').show();
             $.ajax({
-                url: '/api/support/me',
+                url: '/api/supports',
                 type: 'GET',
                 dataType: 'json',
                 beforeSend: function (xhr) {
@@ -985,14 +1088,28 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                         if (window.activeMail === value.id) {
                             readClass = 'active';
                         }
-                        $('#mail-content .support-table').html(`
+
+                        if (value.status === "closed") {
+                            value.status = '<span class="badge bg-danger">Kapalı</span>';
+                        } else if (value.status === "open") {
+                            value.status = '<span class="badge bg-warning text-dark">Açık</span>';
+                        } else if (value.status === "pending") {
+                            value.status = '<span class="badge bg-info">Beklemede</span>';
+                        } else if (value.status === "inprogress") {
+                            value.status = '<span class="badge bg-primary">İşlemde</span>';
+                        } else if (value.status === "resolved") {
+                            value.status = '<span class="badge bg-success">Çözüldü</span>';
+                        }
+                        const ticketDate = new Date(value.createdat);
+                        const dateTicket = timeAgo(ticketDate);
+
+                        $('#mail-content .support-table').append(`
                             <tr>
-                                <td>${value.id}</td>
-                                <td>${value.createdat}</td>
                                 <td>${value.subject}</td>
                                 <td>${value.status}</td>
+                                <td>${dateTicket}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-danger text-light delete-support" data-id="${value.id}">Sil</button>
+                                    <button class="badge btn-danger text-light delete-support" data-id="${value.id}">Sil</button>
                                 </td>
                             </tr>
                         `)
@@ -1157,6 +1274,42 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
         )
     }
 
+    function ticketModal(id = null, subject = null, message = null) {
+
+        let options = {
+            replacements: {
+                modal: {
+                    '{id}': id ? id : '',
+                    '{subject}': subject ? subject : '',
+                    '{message}': message ? message : '',
+                }
+            }
+        };
+
+        let title = 'Yeni Destek Talebi oluştur';
+        if (id) {
+            title = 'Destek Talebini düzenle';
+        }
+
+        new AWN().modal(
+            '<h5 class="mb-4">' + title + '</h5>' +
+            '<form id="create-or-edit-ticket-form">' +
+            '<div class="form-group mb-4">' +
+            '<input type="hidden" name="id" value="{id}">' +
+            '<label for="ticket_subject" class="mb-2">Konu</label>' +
+            '<input type="text" class="form-control" id="ticket_subject" name="subject" value="{subject}" required placeholder="Konu adı">' +
+            '</div>' +
+            '<div class="form-group mb-4">' +
+            '<label for="ticket_message" class="mb-2">Mesaj</label>' +
+            '<textarea class="form-control" id="ticket_message" name="message" rows="5" required placeholder="Mesaj">{message}</textarea>' +
+            '</div>' +
+            '<button type="submit" class="btn btn-primary">Kaydet</button>' +
+            '</form>',
+            'modal-medium w-50 bg-dark',
+            options
+        )
+    }
+
     $(function () {
 
         $("#left-menu a").click(function (e) {
@@ -1168,6 +1321,8 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             window.section = id;
             if (id === 'section-settings') {
                 // getGlobalSettings();
+            } else if (id === 'section-support') {
+                getAllTickets();
             } else if (id === 'section-user') {
                 getAllUsers();
             } else if (id === 'section-mail') {
@@ -1338,6 +1493,11 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             userModal(null, null, null);
         });
 
+        $("body").on("click", ".create-new-ticket", function (e) {
+            e.preventDefault();
+            ticketModal(null, null, null);
+        });
+
         $("#user-table").on("click", ".edit-user", function (e) {
             e.preventDefault();
             const id = $(this).data('id');
@@ -1444,6 +1604,50 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
 
         /* USER : end */
 
+        $("body").on("submit", "#create-or-edit-ticket-form", function (e) {
+            e.preventDefault();
+            const id = $('#create-or-edit-ticket-form input[name="id"]').val();
+            const subject = $('#create-or-edit-ticket-form input[name="subject"]').val();
+            const message = $('#create-or-edit-ticket-form textarea[name="message"]').val();
+
+            const data = {
+                subject: subject,
+                message: message
+            };
+            let endpoint = '/api/supports';
+            if (id) {
+                data.id = id;
+                endpoint += '/' + id;
+            }
+            $.ajax({
+                url: endpoint,
+                type: id ? 'PUT' : 'POST',
+                dataType: 'json',
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                accept: "application/json",
+                beforeSend: function (xhr) {
+                    if (localStorage.token) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.token);
+                    }
+                },
+                success: function (data) {
+                    notifier.success('Destek Talebiniz kaydedildi');
+                    getSettings();
+                    $("#awn-popup-wrapper").fadeOut(300, function () {
+                        $(this).remove();
+                    });
+                },
+                error: function (data) {
+                    if (401 === data.status && data.responseJSON.message) {
+                        notifier.warning(data.responseJSON.message);
+                    }
+                    if (400 === data.status && data.responseJSON.message) {
+                        notifier.warning(data.responseJSON.message);
+                    }
+                }
+            })
+        });
 
     });
 </script>

@@ -190,6 +190,7 @@ func permissionCheck(c *gin.Context, role string) {
 
 	c.Set("currentUser", apiUser)
 	c.Set("currentUserName", apiUser.Username)
+	c.Set("currentUserRole", apiUser.Role)
 
 	c.Next()
 }
@@ -719,30 +720,7 @@ func main() {
 
 	// support (ticket system)
 
-	permissionUserAdminRouter.GET("/api/support", func(c *gin.Context) {
-		var support []supportDto
-		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("supports")
-		cur, err := collection.Find(context.TODO(), bson.D{})
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer cur.Close(context.TODO())
-		for cur.Next(context.TODO()) {
-			var elem supportDto
-			err := cur.Decode(&elem)
-			if err != nil {
-				log.Fatal(err)
-			}
-			support = append(support, elem)
-		}
-		if err := cur.Err(); err != nil {
-			log.Fatal(err)
-		}
-		c.JSON(http.StatusOK, gin.H{
-			"data": support,
-		})
-	})
-	permissionUserAdminRouter.DELETE("/api/support/:id", func(c *gin.Context) {
+	permissionUserAdminRouter.DELETE("/api/supports/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		objID, _ := primitive.ObjectIDFromHex(id)
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("supports")
@@ -754,7 +732,7 @@ func main() {
 			"message": "Support deleted",
 		})
 	})
-	permissionUserAdminRouter.GET("/api/support/:id", func(c *gin.Context) {
+	permissionUserAdminRouter.GET("/api/supports/:id", func(c *gin.Context) {
 		objID, _ := primitive.ObjectIDFromHex(c.Param("id"))
 		var support supportDto
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("supports")
@@ -773,29 +751,7 @@ func main() {
 			"data": support,
 		})
 	})
-	permissionUserWatcherRouter.POST("/api/support", func(c *gin.Context) {
-		username, error := c.Get("currentUserName")
-		if !error {
-			c.JSON(
-				http.StatusUnauthorized,
-				gin.H{
-					"message": "Oturum açmadınız.",
-				})
-		}
-		var support supportDto
-		c.BindJSON(&support)
-		support.Username = username.(string)
-		support.Status = SupportStatusOpen
-		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("supports")
-		_, err := collection.InsertOne(context.TODO(), support)
-		if err != nil {
-			log.Fatal(err)
-		}
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Support created",
-		})
-	})
-	permissionUserWatcherRouter.GET("/api/support/me", func(c *gin.Context) {
+	permissionUserWatcherRouter.POST("/api/supports", func(c *gin.Context) {
 		username, error := c.Get("currentUserName")
 		if !error {
 			c.JSON(
@@ -805,12 +761,50 @@ func main() {
 				})
 		}
 
-		var supports []supportDto
+		var support supportDto
+		c.BindJSON(&support)
+		support.Username = username.(string)
+		support.Status = SupportStatusOpen
+		support.CreatedAt = time.Now().UTC().String()
+
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("supports")
-		cur, err := collection.Find(context.TODO(), bson.D{{"username", username}})
+		_, err := collection.InsertOne(context.TODO(), support)
 		if err != nil {
 			log.Fatal(err)
 		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Support created",
+		})
+	})
+	permissionUserWatcherRouter.GET("/api/supports", func(c *gin.Context) {
+		username, error := c.Get("currentUserName")
+		if !error {
+			c.JSON(
+				http.StatusUnauthorized,
+				gin.H{
+					"message": "Oturum açmadınız.",
+				})
+		}
+		role, errorRole := c.Get("currentUserRole")
+		if !errorRole {
+			c.JSON(
+				http.StatusUnauthorized,
+				gin.H{
+					"message": "Oturum açmadınız.",
+				})
+		}
+
+		var supports []supportDto
+		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("supports")
+		payload := bson.M{"username": username.(string)}
+		if role == "admin" {
+			payload = bson.M{}
+		}
+		cur, err := collection.Find(context.TODO(), payload)
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		defer cur.Close(context.TODO())
 		for cur.Next(context.TODO()) {
 			var elem supportDto
@@ -818,6 +812,8 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
+			elem.Id = cur.Current.Lookup("_id").ObjectID().Hex()
+			elem.CreatedAt = cur.Current.Lookup("createdat").StringValue()
 			supports = append(supports, elem)
 		}
 		if err := cur.Err(); err != nil {
