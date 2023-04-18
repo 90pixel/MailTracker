@@ -75,6 +75,7 @@ type supportDto = struct {
 	Subject   string `json:"subject"`
 	Message   string `json:"message"`
 	CreatedAt string `json:"createdat"`
+	IsRead    int    `json:"isread"`
 	Status    string `json:"status"`
 }
 
@@ -720,7 +721,7 @@ func main() {
 
 	// support (ticket system)
 
-	permissionUserAdminRouter.DELETE("/api/supports/:id", func(c *gin.Context) {
+	permissionUserAdminRouter.DELETE("/api/tickets/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		objID, _ := primitive.ObjectIDFromHex(id)
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("supports")
@@ -732,11 +733,52 @@ func main() {
 			"message": "Support deleted",
 		})
 	})
-	permissionUserAdminRouter.GET("/api/supports/:id", func(c *gin.Context) {
+	permissionUserAdminRouter.PUT("/api/tickets/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		objID, _ := primitive.ObjectIDFromHex(id)
+		var support supportDto
+		c.BindJSON(&support)
+		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("supports")
+		_, err := collection.UpdateOne(context.TODO(), bson.M{"_id": objID}, bson.D{
+			{"$set", bson.D{
+				{"status", support.Status},
+			},
+			},
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Support updated",
+		})
+	})
+	permissionUserWatcherRouter.GET("/api/tickets/:id", func(c *gin.Context) {
+		username, error := c.Get("currentUserName")
+		if !error {
+			c.JSON(
+				http.StatusUnauthorized,
+				gin.H{
+					"message": "Oturum açmadınız.",
+				})
+		}
+		role, errorRole := c.Get("currentUserRole")
+		if !errorRole {
+			c.JSON(
+				http.StatusUnauthorized,
+				gin.H{
+					"message": "Oturum açmadınız.",
+				})
+		}
+
 		objID, _ := primitive.ObjectIDFromHex(c.Param("id"))
+		data := bson.M{"_id": objID}
+		if role == "watcher" {
+			data = bson.M{"_id": objID, "username": username}
+		}
+
 		var support supportDto
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("supports")
-		err := collection.FindOne(context.TODO(), bson.M{"_id": objID}).Decode(&support)
+		err := collection.FindOne(context.TODO(), data).Decode(&support)
 		if err != nil {
 			if err == mongo.ErrNoDocuments {
 				c.JSON(http.StatusNotFound, gin.H{
@@ -747,11 +789,27 @@ func main() {
 				log.Fatal(err)
 			}
 		}
+
+		if role == "admin" {
+
+			// isread and status update
+			_, err = collection.UpdateOne(context.TODO(), bson.M{"_id": objID}, bson.D{
+				{"$set", bson.D{
+					{"isread", 1},
+					{"status", SupportStatusInProgress},
+				},
+				},
+			})
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
 		c.JSON(http.StatusOK, gin.H{
 			"data": support,
 		})
 	})
-	permissionUserWatcherRouter.POST("/api/supports", func(c *gin.Context) {
+	permissionUserWatcherRouter.POST("/api/tickets", func(c *gin.Context) {
 		username, error := c.Get("currentUserName")
 		if !error {
 			c.JSON(
@@ -764,6 +822,7 @@ func main() {
 		var support supportDto
 		c.BindJSON(&support)
 		support.Username = username.(string)
+		support.IsRead = 0
 		support.Status = SupportStatusOpen
 		support.CreatedAt = time.Now().UTC().String()
 
@@ -776,7 +835,7 @@ func main() {
 			"message": "Support created",
 		})
 	})
-	permissionUserWatcherRouter.GET("/api/supports", func(c *gin.Context) {
+	permissionUserWatcherRouter.GET("/api/tickets", func(c *gin.Context) {
 		username, error := c.Get("currentUserName")
 		if !error {
 			c.JSON(
@@ -800,7 +859,9 @@ func main() {
 		if role == "admin" {
 			payload = bson.M{}
 		}
-		cur, err := collection.Find(context.TODO(), payload)
+		opts := options.Find()
+		opts.SetSort(bson.D{{"_id", -1}})
+		cur, err := collection.Find(context.TODO(), payload, opts)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -823,6 +884,8 @@ func main() {
 			"data": supports,
 		})
 	})
+
+	// Start and run the server
 
 	router.Run()
 }
