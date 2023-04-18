@@ -3,8 +3,11 @@
 login
 ![image](screenshot-login.png)
 
-dashboard
-![image](screenshot-main.png)
+dashboard admin
+![image](screenshot-admin.png)
+
+dashboard watcher
+![image](screenshot-watcher.png)
 
 #### Running
 
