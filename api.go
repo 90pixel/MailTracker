@@ -202,6 +202,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 		return
 	}
+	http.DefaultClient.Timeout = time.Minute * 10
 	client := connection(true)
 	router := gin.Default()
 	router.LoadHTMLGlob("templates/*")
