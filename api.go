@@ -7,6 +7,8 @@ import (
 	"crypto/md5"
 	"errors"
 	"fmt"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/timeout"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/joho/godotenv"
@@ -196,6 +198,22 @@ func permissionCheck(c *gin.Context, role string) {
 	c.Next()
 }
 
+func timeoutResponse(c *gin.Context) {
+	c.JSON(http.StatusRequestTimeout, gin.H{
+		"message": "Request Timeout",
+	})
+}
+
+func timeoutMiddleware() gin.HandlerFunc {
+	return timeout.New(
+		timeout.WithTimeout(500*time.Millisecond),
+		timeout.WithHandler(func(c *gin.Context) {
+			c.Next()
+		}),
+		timeout.WithResponse(timeoutResponse),
+	)
+}
+
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -205,6 +223,8 @@ func main() {
 	http.DefaultClient.Timeout = time.Minute * 10
 	client := connection(true)
 	router := gin.Default()
+	router.Use(cors.Default())
+	router.Use(timeoutMiddleware())
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/assets", "./assets")
 	router.GET("/", func(c *gin.Context) {
