@@ -223,10 +223,10 @@ func main() {
 	http.DefaultClient.Timeout = time.Minute * 10
 	client := connection(true)
 	router := gin.Default()
-	router.Use(cors.Default())
-	router.Use(timeoutMiddleware())
 	router.LoadHTMLGlob("templates/*")
 	router.Static("/assets", "./assets")
+	router.Use(cors.Default())
+	router.Use(timeoutMiddleware())
 	router.GET("/", func(c *gin.Context) {
 
 		curl := "curl  --url 'smtp://" + os.Getenv("HOST") + ":" + os.Getenv("SMTP_PORT") + "' --user '" + os.Getenv("SMTP_USERNAME") + ":" + os.Getenv("SMTP_PASSWORD") + "' --mail-from " + os.Getenv("SMTP_USERNAME") + " --mail-rcpt " + os.Getenv("SMTP_USERNAME") + " --upload-file - <<EOF\n" +
