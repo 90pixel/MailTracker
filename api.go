@@ -81,6 +81,16 @@ type supportDto = struct {
 	Status    string `json:"status"`
 }
 
+type supportMessageDto = struct {
+	Id            string `json:"id"`
+	Username      string `json:"username"`
+	TicketId      string `json:"ticketid"`
+	Message       string `json:"message"`
+	IsReadAdmin   int    `json:"isreadadmin"`
+	IsReadWatcher int    `json:"isreadwatcher"`
+	CreatedAt     string `json:"createdat"`
+}
+
 // enum status for support
 const (
 	SupportStatusOpen       = "open"
@@ -812,14 +822,21 @@ func main() {
 		}
 
 		if role == "admin" {
+			payload := bson.D{
+				{"isread", 1},
+			}
+
+			if support.Status == SupportStatusOpen {
+				payload = bson.D{
+					{"isread", 1},
+					{"status", SupportStatusInProgress},
+				}
+				support.Status = SupportStatusInProgress
+			}
 
 			// isread and status update
 			_, err = collection.UpdateOne(context.TODO(), bson.M{"_id": objID}, bson.D{
-				{"$set", bson.D{
-					{"isread", 1},
-					{"status", SupportStatusInProgress},
-				},
-				},
+				{"$set", payload},
 			})
 			if err != nil {
 				log.Fatal(err)
@@ -903,6 +920,137 @@ func main() {
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"data": supports,
+		})
+	})
+
+	permissionUserWatcherRouter.GET("/api/tickets/:id/messages", func(c *gin.Context) {
+		username, error := c.Get("currentUserName")
+		if !error {
+			c.JSON(
+				http.StatusUnauthorized,
+				gin.H{
+					"message": "Oturum açmadınız.",
+				})
+		}
+		role, errorRole := c.Get("currentUserRole")
+		if !errorRole {
+			c.JSON(
+				http.StatusUnauthorized,
+				gin.H{
+					"message": "Oturum açmadınız.",
+				})
+		}
+
+		ticketId := c.Param("id")
+		objID, _ := primitive.ObjectIDFromHex(ticketId)
+		if role != "admin" {
+			// check ticket owner
+			data := bson.M{"_id": objID, "username": username}
+			var support supportDto
+			collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("supports")
+			err := collection.FindOne(context.TODO(), data).Decode(&support)
+			if err != nil {
+				if err == mongo.ErrNoDocuments {
+					c.JSON(http.StatusNotFound, gin.H{
+						"message": "Support bulunamadı",
+					})
+					return
+				} else {
+					log.Fatal(err)
+				}
+			}
+		}
+
+		data := bson.M{"ticketid": ticketId}
+
+		var supportMessages []supportMessageDto
+		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("support_messages")
+		cur, err := collection.Find(context.TODO(), data)
+		if err != nil {
+			if err == mongo.ErrNoDocuments {
+				c.JSON(http.StatusNotFound, gin.H{
+					"message": "Support bulunamadı",
+				})
+				return
+			} else {
+				log.Fatal(err)
+			}
+		}
+
+		defer cur.Close(context.TODO())
+		for cur.Next(context.TODO()) {
+			var elem supportMessageDto
+			err := cur.Decode(&elem)
+			if err != nil {
+				log.Fatal(err)
+			}
+			elem.Id = cur.Current.Lookup("_id").ObjectID().Hex()
+			elem.CreatedAt = cur.Current.Lookup("createdat").StringValue()
+			supportMessages = append(supportMessages, elem)
+		}
+
+		if err := cur.Err(); err != nil {
+			log.Fatal(err)
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"data": supportMessages,
+		})
+	})
+	permissionUserWatcherRouter.POST("/api/tickets/:id/messages", func(c *gin.Context) {
+		username, error := c.Get("currentUserName")
+		if !error {
+			c.JSON(
+				http.StatusUnauthorized,
+				gin.H{
+					"message": "Oturum açmadınız.",
+				})
+		}
+		role, errorRole := c.Get("currentUserRole")
+		if !errorRole {
+			c.JSON(
+				http.StatusUnauthorized,
+				gin.H{
+					"message": "Oturum açmadınız.",
+				})
+		}
+
+		ticketId := c.Param("id")
+
+		objID, _ := primitive.ObjectIDFromHex(ticketId)
+
+		if role != "admin" {
+			// check ticket owner
+			data := bson.M{"_id": objID, "username": username}
+			var support supportDto
+			collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("supports")
+			err := collection.FindOne(context.TODO(), data).Decode(&support)
+			if err != nil {
+				if err == mongo.ErrNoDocuments {
+					c.JSON(http.StatusNotFound, gin.H{
+						"message": "Support bulunamadı",
+					})
+					return
+				} else {
+					log.Fatal(err)
+				}
+			}
+		}
+
+		var supportMessage supportMessageDto
+		c.BindJSON(&supportMessage)
+		supportMessage.Username = username.(string)
+		supportMessage.TicketId = ticketId
+		supportMessage.IsReadWatcher = 0
+		supportMessage.IsReadAdmin = 0
+		supportMessage.CreatedAt = time.Now().UTC().String()
+
+		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("support_messages")
+		_, err := collection.InsertOne(context.TODO(), supportMessage)
+		if err != nil {
+			log.Fatal(err)
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Support message created",
 		})
 	})
 

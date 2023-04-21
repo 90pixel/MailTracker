@@ -550,7 +550,7 @@
                                 <th scope="col">Konu</th>
                                 <th scope="col">Durum</th>
                                 <th scope="col">Tarih</th>
-                                <th scope="col">İşlemler</th>
+                                <th scope="col"></th>
                             </tr>
                             </thead>
                             <tbody class="support-table h-100 overflow-y-scroll">
@@ -1127,7 +1127,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                                 <td>${value.status}</td>
                                 <td>${dateTicket}</td>
                                 <td>
-                                    <button class="badge btn-danger text-light edit-support" data-id="${value.id}">Mesajlar</button>
+                                    <button class="badge btn-danger text-light edit-ticket" data-id="${value.id}">Mesajlar</button>
                                 </td>
                             </tr>
                         `)
@@ -1309,14 +1309,28 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
         let options = {
             replacements: {
                 modal: {
-                    '{title}': 'Destek Talebi Düzenle',
+                    '{title}': (window.user.role === 'admin') ? 'Destek Talebi Düzenle' : 'Destek Talebi Görüntüle',
                     '{id}': id ? id : '',
+                    '{ticket_id}': id ? id : '',
                     '{subject}': subject ? subject : '',
                     '{message}': message ? message : '',
                     '{statusOptions}': statusOptions,
                 }
             }
         };
+
+        let formHtml = "";
+
+        if (window.user.role === 'admin') {
+            formHtml = '<div class="form-group mb-4">' +
+                '<label for="ticket_status" class="mb-2">Durum</label>' +
+                '<select class="form-control" id="ticket_status" required name="status">' +
+                '<option value="">Seçiniz</option>' +
+                '{statusOptions}' +
+                '</select>' +
+                '</div>' +
+                '<button type="submit" class="btn btn-primary">Kaydet</button>';
+        }
 
         new AWN().modal(
             '<h5 class="mb-4">{title}</h5>' +
@@ -1332,14 +1346,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             '<label for="ticket_message" class="mb-2">Mesaj</label>' +
             '<p>{message}</p>' +
             '</div>' +
-            '<div class="form-group mb-4">' +
-            '<label for="ticket_status" class="mb-2">Durum</label>' +
-            '<select class="form-control" id="ticket_status" required name="status">' +
-            '<option value="">Seçiniz</option>' +
-            '{statusOptions}' +
-            '</select>' +
-            '</div>' +
-            '<button type="submit" class="btn btn-primary">Kaydet</button>' +
+            formHtml +
             '</form>' +
             '</div>' +
             '<div class="col-md-6 col-12 mb-4">' +
@@ -1355,7 +1362,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             '</div>' +
             '<form id="ticket-message-form">' +
             '<div class="form-group mb-4">' +
-            '<input type="hidden" name="ticket_id" value="{id}">' +
+            '<input type="hidden" name="ticket_id" value="{ticket_id}">' +
             '<label for="ticket_message" class="mb-2">Mesaj</label>' +
             '<textarea class="form-control" id="ticket_message" name="ticket_message" required placeholder="Mesaj"></textarea>' +
             '</div>' +
@@ -1369,7 +1376,68 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             options
         )
 
+        getTicketMessages(id);
+    }
 
+    function scrollBottom() {
+        $(".scroll-chat").animate({ scrollTop: 100000 }, 1000);
+    }
+
+    function getTicketMessages(ticketId) {
+        $.ajax({
+            url: '/api/tickets/' + ticketId + '/messages',
+            type: 'GET',
+            beforeSend: function (xhr) {
+                if (localStorage.token) {
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.token);
+                }
+            },
+            success: function (response) {
+                let messages = response.data;
+                let html = '';
+                if (messages.length > 0) {
+                    html = '<ul class="list-unstyled scroll-chat">';
+                    messages.forEach(function (message) {
+
+                        const postDate = new Date(message.createdat);
+                        const date = timeAgo(postDate);
+                        let liStyle = 'justify-content-end';
+                        let className = '';
+                        if (message.username === window.user.username) {
+                            liStyle = 'justify-content-between';
+                            className = 'bg-primary text-white';
+                        }
+
+                        html += '<li class="d-flex  ' + liStyle + ' mb-4">' +
+                            '<div class="card ' + className + ' ">' +
+                            '<div class="card-header d-flex justify-content-between p-3">' +
+                            '<p class="fw-bold mb-0">' + message.username + '</p>' +
+                            '<p class="text-muted small mr-4 mb-0"> <span class="p-2 pt-0 pb-0">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16">\n' +
+                            '  <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 12.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/>\n' +
+                            '  <path d="M8 3.5a.5.5 0 0 1 .5.5v4.793l2.146 2.147a.5.5 0 0 1-.708.708l-2-2a.5.5 0 0 1-.146-.354V4a.5.5 0 0 1 .5-.5z"/>\n' +
+                            '</svg>' +
+                            '</span> ' + date + '</p>' +
+                            '</div>' +
+                            '<div class="card-body">' +
+                            '<p class="mb-0">' +
+                            message.message +
+                            '</p>' +
+                            '</div>' +
+                            '</div>' +
+                            '</li>';
+                    });
+                    html += '</ul>';
+                } else {
+                    html = '<div class="text-center pt-4 pb-4 emtpy-text">' +
+                        '<p>Mesaj bulunamadı</p>' +
+                        '</div>';
+                }
+
+                $('#ticket-messages').html(html);
+                scrollBottom();
+            }
+        });
     }
 
     function ticketModal(id = null, subject = null, message = null) {
@@ -1705,7 +1773,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
 
         /* SUPPORT : start */
 
-        $("#support-content").on("click", ".edit-ticket", function (e) {
+        $("body").on("click", ".edit-ticket", function (e) {
             e.preventDefault();
             const id = $(this).data('id');
             $.ajax({
@@ -1720,11 +1788,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                     }
                 },
                 success: function (data) {
-                    if (window.user.role == 'admin') {
-                        ticketViewModal(id, data.data.subject, data.data.message, data.data.status);
-                    } else {
-                        ticketModal(id, data.data.subject, data.data.message);
-                    }
+                    ticketViewModal(id, data.data.subject, data.data.message, data.data.status);
                 },
                 error: function (data) {
                     if (401 === data.status && data.responseJSON.message) {
@@ -1821,6 +1885,44 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                     }
                 }
             });
+        });
+
+        $("body").on("submit", "#ticket-message-form", function (e) {
+            e.preventDefault();
+            const id = $('#ticket-message-form input[name="ticket_id"]').val();
+            const message = $('#ticket-message-form textarea[name="ticket_message"]').val();
+            const data = {
+                message: message
+            };
+
+            $.ajax({
+                "url": "/api/tickets/" + id + "/messages",
+                "type": "POST",
+                "dataType": "json",
+                "data": JSON.stringify(data),
+                "contentType": "application/json",
+                "accept": "application/json",
+                beforeSend: function (xhr) {
+                    if (localStorage.token) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.token);
+                    }
+                },
+                success: function (data) {
+                    notifier.success('Mesajınız gönderildi');
+                    getTicketMessages(id);
+                    $('#ticket-message-form textarea[name="ticket_message"]').val('');
+                },
+                error: function (data) {
+                    if (401 === data.status && data.responseJSON.message) {
+                        notifier.warning(data.responseJSON.message);
+                    }
+                    if (400 === data.status && data.responseJSON.message) {
+                        notifier.warning(data.responseJSON.message);
+                    }
+                }
+            });
+
+
         });
 
         /* SUPPORT : start */

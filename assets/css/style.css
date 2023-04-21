@@ -181,9 +181,15 @@ theme_color {
 
 .custom-modal-size {
     max-width: none !important;
-    width: 80% !important;
+    width: 90% !important;
+    max-height: 90% !important;
+    overflow-y: auto;
 }
 
+.scroll-chat {
+    overflow-y: auto;
+    height: 200px;
+}
 
 #awn-toast-container {
     z-index: 999999 !important;
