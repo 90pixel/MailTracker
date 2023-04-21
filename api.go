@@ -328,7 +328,14 @@ func main() {
 		// order by date desc
 		opts := options.Find()
 		opts.SetSort(bson.D{{"_id", -1}})
-		cur, err := collection.Find(context.TODO(), bson.D{}, opts)
+
+		// search by subject
+		payload := bson.D{}
+		if c.Query("subject") != "" {
+			payload = bson.D{{"subject", bson.D{{"$regex", c.Query("subject")}, {"$options", "i"}}}}
+		}
+
+		cur, err := collection.Find(context.TODO(), payload, opts)
 		if err != nil {
 			log.Fatal(err)
 			return

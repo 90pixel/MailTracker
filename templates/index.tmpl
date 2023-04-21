@@ -837,6 +837,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
     window.section = null;
     window.generatedLoop = false;
     window.user = null;
+    window.filterMailInput = null;
 
     function timeAgo(time) {
 
@@ -1018,10 +1019,30 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
         window.section = 'section-mail';
         // loader
         $('.toploader').show();
+        const data = {}
+        if (window.filterMailInput) {
+            data.subject = window.filterMailInput;
+        }
+
+        // search form
+        $('#mail-box').html(`
+                        <div class="d-flex  list-group-item pt-4 pb-4 list-group-item-action">
+                            <div class="d-flex flex-fill">
+                                <input class="form-control me-2 filter-mail-input" type="search" value="` + (window.filterMailInput ? window.filterMailInput  : '')  + `" placeholder="Ara" aria-label="Search">
+                            </div>
+                        </div>
+                    `);
+        // focus input
+        const searchInput = $('.filter-mail-input');
+        const strLength = searchInput.val().length * 2;
+        searchInput.focus();
+        searchInput[0].setSelectionRange(strLength, strLength);
+
         $.ajax({
             url: '/api/mails',
             type: 'GET',
             dataType: 'json',
+            data: data,
             beforeSend: function (xhr) {
                 if (localStorage.token) {
                     xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.token);
@@ -1030,15 +1051,28 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             success: function (data) {
                 // when empty data show empty message
                 $('.toploader').delay(1750).fadeOut(10);
-                $('#mail-box').html('');
+
+
+
                 if (data.data === null || data.data === 0) {
-                    $('#mail-box').html(`
-                        <div class="d-flex justify-content-center list-group-item pt-4 pb-4 list-group-item-action">
-                            <h5 class="text-center">Gelen kutunuz boş.</h5>
-                        </div>
-                    `);
-                    return;
+                    if (window.filterMailInput) {
+                        $('#mail-box').append(`
+                            <div class="d-flex justify-content-center list-group-item pt-4 pb-4 list-group-item-action">
+                                <h5 class="text-center">Arama sonucu bulunamadı.</h5>
+                            </div>
+                        `);
+                        return;
+                    } else {
+                        $('#mail-box').append(`
+                            <div class="d-flex justify-content-center list-group-item pt-4 pb-4 list-group-item-action">
+                                <h5 class="text-center">Gelen kutunuz boş.</h5>
+                            </div>
+                        `);
+                        return;
+                    }
                 }
+
+
                 // loop data
                 $.each(data.data, function (index, value) {
                     const postDate = new Date(value.createdat);
@@ -1216,6 +1250,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                     $('#login').hide();
                     getSettings();
                     getAllMails();
+                    window.filterMailInput = null;
                     if (!window.generatedLoop) {
                         setInterval(function () {
                             if (localStorage.token && window.section === 'section-mail') {
@@ -1380,7 +1415,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
     }
 
     function scrollBottom() {
-        $(".scroll-chat").animate({ scrollTop: 100000 }, 1000);
+        $(".scroll-chat").animate({scrollTop: 100000}, 1000);
     }
 
     function getTicketMessages(ticketId) {
@@ -1494,6 +1529,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             } else if (id === 'section-mail') {
                 getSettings();
                 getAllMails();
+                window.filterMailInput = null;
             }
             $("." + id).addClass('active');
         });
@@ -1561,6 +1597,11 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                     console.log(data)
                 }
             })
+        });
+
+        $('body').on('keyup', '.filter-mail-input', function () {
+            window.filterMailInput = $(this).val();
+            getAllMails();
         });
 
         $(".settings-btn").on("click", function (e) {
