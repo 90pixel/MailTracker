@@ -364,7 +364,7 @@ func main() {
 		if user.(userListDto).Role == "watcher" {
 
 			payload = bson.D{
-				{"to", bson.D{{"$in", user.(userListDto).Emails}}},
+				{"from", bson.D{{"$in", user.(userListDto).Emails}}},
 				{"subject", bson.D{{"$regex", c.Query("subject")}, {"$options", "i"}}},
 			}
 		}
