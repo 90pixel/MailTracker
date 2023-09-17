@@ -1,5 +1,8 @@
 # MailTracker
 
+MailTracker is an invaluable tool for developers and teams involved in email testing and development. It provides a virtual environment where you can test your emails without disturbing real mailboxes. With MailTracker, you can capture real emails, perform debugging, and ensure that your email integrations work seamlessly. It eliminates the risk of accidentally sending emails to real customers during the development process. By using MailTracker, developers can easily identify and fix issues, validate email delivery, and ensure the proper appearance of emails. Whether you're working on a small project or a large-scale application, MailTracker simplifies the process of testing and debugging email functionalities, making it an essential tool for any development workflow.
+
+
 login
 ![image](screenshot-login.png)
 
