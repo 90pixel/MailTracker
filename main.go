@@ -1,6 +1,9 @@
 package main
 
-import _ "discord-smtp-server/tzinit"
+import (
+	_ "discord-smtp-server/tzinit"
+	"github.com/getsentry/raven-go"
+)
 
 import (
 	"discord-smtp-server/smtp"
@@ -15,6 +18,11 @@ func main() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
+	}
+	err = raven.SetDSN(os.Getenv("SENTRY_DSN"))
+	if err != nil {
+		log.Fatal("Error setting sentry dsn")
+		return
 	}
 	backend, err := smtp.NewBackend(
 		os.Getenv("MONGO_URI"),

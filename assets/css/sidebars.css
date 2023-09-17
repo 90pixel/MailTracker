@@ -59,5 +59,6 @@ main {
 }
 
 .scrollarea {
-  overflow-y: auto;
+  overflow-y: scroll;
+  height: 92vh;
 }

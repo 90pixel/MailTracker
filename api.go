@@ -1,13 +1,16 @@
 package main
 
-import _ "discord-smtp-server/tzinit"
+import (
+	_ "discord-smtp-server/tzinit"
+	"github.com/getsentry/raven-go"
+	"github.com/gin-contrib/cors"
+)
 
 import (
 	"context"
 	"crypto/md5"
 	"errors"
 	"fmt"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/timeout"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -56,19 +59,21 @@ type mailListDto struct {
 }
 
 type userDto = struct {
-	Id        string `json:"id"`
-	Salt      string `json:"salt"`
-	Username  string `json:"username"`
-	Password  string `json:"password"`
-	Role      string `json:"role"`
-	CreatedAt string `json:"createdat"`
+	Id        string   `json:"id"`
+	Salt      string   `json:"salt"`
+	Username  string   `json:"username"`
+	Password  string   `json:"password"`
+	Role      string   `json:"role"`
+	Emails    []string `json:"emails"`
+	CreatedAt string   `json:"createdat"`
 }
 
 type userListDto = struct {
-	Id        string `json:"id"`
-	Username  string `json:"username"`
-	Role      string `json:"role"`
-	CreatedAt string `json:"createdat"`
+	Id        string   `json:"id"`
+	Username  string   `json:"username"`
+	Role      string   `json:"role"`
+	Emails    []string `json:"emails"`
+	CreatedAt string   `json:"createdat"`
 }
 
 type supportDto = struct {
@@ -103,6 +108,7 @@ func connection(startup bool) *mongo.Client {
 	clientOptions := options.Client().ApplyURI(os.Getenv("MONGO_URI"))
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
+		raven.CaptureErrorAndWait(err, nil)
 		log.Fatal(err)
 	}
 	if startup {
@@ -199,6 +205,7 @@ func permissionCheck(c *gin.Context, role string) {
 	apiUser.Id = user.Id
 	apiUser.Username = user.Username
 	apiUser.Role = user.Role
+	apiUser.Emails = user.Emails
 	apiUser.CreatedAt = user.CreatedAt
 
 	c.Set("currentUser", apiUser)
@@ -230,6 +237,15 @@ func main() {
 		log.Fatal("Error loading .env file")
 		return
 	}
+	log.Default().SetFlags(log.LstdFlags | log.Lshortfile)
+	log.Println("Starting server at", os.Getenv("HOST")+":"+os.Getenv("PORT"))
+	log.Println("Sentry DSN: " + os.Getenv("SENTRY_DSN"))
+	err = raven.SetDSN(os.Getenv("SENTRY_DSN"))
+	if err != nil {
+		log.Fatal("Error setting sentry dsn")
+		return
+	}
+
 	http.DefaultClient.Timeout = time.Minute * 10
 	client := connection(true)
 	router := gin.Default()
@@ -323,6 +339,7 @@ func main() {
 	permissionMailRouter := router.Group("/")
 	permissionMailRouter.Use(permissionCheckAuth)
 	permissionMailRouter.GET("/api/mails", func(c *gin.Context) {
+
 		var mails []mailListDto
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("mails")
 		// order by date desc
@@ -333,6 +350,23 @@ func main() {
 		payload := bson.D{}
 		if c.Query("subject") != "" {
 			payload = bson.D{{"subject", bson.D{{"$regex", c.Query("subject")}, {"$options", "i"}}}}
+		}
+
+		// search by from
+		user, userErr := c.Get("currentUser")
+		if !userErr {
+			c.JSON(
+				http.StatusUnauthorized,
+				gin.H{
+					"message": "Oturum açmadınız.",
+				})
+		}
+		if user.(userListDto).Role == "watcher" {
+
+			payload = bson.D{
+				{"to", bson.D{{"$in", user.(userListDto).Emails}}},
+				{"subject", bson.D{{"$regex", c.Query("subject")}, {"$options", "i"}}},
+			}
 		}
 
 		cur, err := collection.Find(context.TODO(), payload, opts)
@@ -452,8 +486,10 @@ func main() {
 		collection := client.Database(os.Getenv("MONGO_TABLE_NAME")).Collection("users")
 		plainPwd := user.Password
 		// get username from users
+		log.Println(user.Username)
 		err := collection.FindOne(context.TODO(), bson.M{"username": user.Username}).Decode(&user)
 		if err != nil {
+			raven.CaptureErrorAndWait(err, nil)
 			c.JSON(
 				http.StatusUnauthorized,
 				gin.H{
@@ -468,7 +504,7 @@ func main() {
 			c.JSON(
 				http.StatusUnauthorized,
 				gin.H{
-					"message": "Kullanıcı adı veya parola hatalı.",
+					"message": "Kullanıcı adı veya parola hatalı. 2",
 				})
 			return
 		}
@@ -551,7 +587,7 @@ func main() {
 			"data": users,
 		})
 	})
-	permissionUserAdminRouter.POST("/api/users", func(c *gin.Context) {
+	permissionAdminMailRouter.POST("/api/users", func(c *gin.Context) {
 		var user userDto
 		c.BindJSON(&user)
 
@@ -591,7 +627,7 @@ func main() {
 		c.ShouldBindJSON(&userExists)
 		err = collection.FindOne(context.TODO(), bson.M{"username": user.Username}).Decode(&userExists)
 		if err != nil {
-			if err != mongo.ErrNoDocuments {
+			if mongo.ErrNoDocuments != err {
 				log.Fatal(err)
 			}
 		}
@@ -626,6 +662,7 @@ func main() {
 		_, err = collection.InsertOne(context.TODO(), bson.D{
 			{"username", user.Username},
 			{"password", string(hashPassword)},
+			{"emails", user.Emails},
 			{"salt", salt},
 			{"role", user.Role},
 			{"createdat", time.Now().UTC().String()},
@@ -707,6 +744,7 @@ func main() {
 		_, err = collection.UpdateOne(context.TODO(), bson.M{"_id": objID}, bson.D{
 			{"$set", bson.D{
 				{"username", user.Username},
+				{"emails", user.Emails},
 				{"role", user.Role},
 			},
 			},

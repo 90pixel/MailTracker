@@ -1274,13 +1274,14 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
         }
     }
 
-    function userModal(id = null, username = null, role = null) {
+    function userModal(id = null, username = null, role = null, emails = []) {
 
         let options = {
             replacements: {
                 modal: {
                     '{id}': id ? id : '',
                     '{username}': username ? username : '',
+                    '{emails}': emails ? emails.join(',') : '',
                 }
             }
         };
@@ -1310,6 +1311,12 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             '<div class="form-group mb-4">' +
             '<label for="user_password_confirmation">Şifre tekrar</label>' +
             '<input type="password" class="form-control"  ' + (id ? '' : 'required') + ' id="user_password_confirmation" name="password2" placeholder="Şifre tekrar">' +
+            '</div>' +
+            // Emails
+            '<div class="form-group mb-4">' +
+            '<label for="emails">Izin verilen E-Postalar</label>' +
+            '<input type="text" class="form-control" id="emails" name="emails" value="{emails}" placeholder="E-Postalar">' +
+            '<small class="form-text text-muted">E-Postaları virgül ile ayırınız.</small>' +
             '</div>' +
             '<div class="form-group mb-4">' +
             '<label for="user_role">Rol</label>' +
@@ -1721,7 +1728,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
                     }
                 },
                 success: function (data) {
-                    userModal(id, data.data.username, data.data.role);
+                    userModal(id, data.data.username, data.data.role, data.data.emails);
                 },
                 error: function (data) {
                     if (401 === data.status && data.responseJSON.message) {
@@ -1765,6 +1772,15 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             const username = $('#create-or-edit-user-form input[name="username"]').val();
             const password = $('#create-or-edit-user-form input[name="password"]').val();
             const password2 = $('#create-or-edit-user-form input[name="password2"]').val();
+            let emails = $('#create-or-edit-user-form input[name="emails"]').val();
+            if (emails.includes(',') && emails.length > 0) {
+                emails = emails.split(',');
+                emails = emails.map(function (email) {
+                    return email.trim();
+                });
+            } else {
+                emails = [];
+            }
             if (password !== password2) {
                 notifier.warning('Şifreler uyuşmuyor');
                 return;
@@ -1773,6 +1789,7 @@ EMAIL_HOST_PASSWORD={{ .password}}</code></pre>
             const data = {
                 username: username,
                 password: password,
+                emails: emails,
                 role: role
             };
             let endpoint = '/api/users';
