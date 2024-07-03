@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "discord-smtp-server/tzinit"
+	"errors"
 	"github.com/getsentry/raven-go"
 	"github.com/gin-contrib/cors"
 )
@@ -9,7 +10,6 @@ import (
 import (
 	"context"
 	"crypto/md5"
-	"errors"
 	"fmt"
 	"github.com/gin-contrib/timeout"
 	"github.com/gin-gonic/gin"
@@ -363,10 +363,18 @@ func main() {
 		}
 		if user.(userListDto).Role == "watcher" {
 
+			// "from" kısmını oluşturun
+			from := bson.A{}
+			for _, email := range user.(userListDto).Emails {
+				from = append(from, bson.D{{"$regex", email}, {"$options", "i"}})
+			}
+
+			// Nihai payload
 			payload = bson.D{
-				{"from", bson.D{{"$in", user.(userListDto).Emails}}},
+				{"from", bson.D{{"$or", from}}},
 				{"subject", bson.D{{"$regex", c.Query("subject")}, {"$options", "i"}}},
 			}
+
 		}
 
 		cur, err := collection.Find(context.TODO(), payload, opts)
@@ -627,7 +635,7 @@ func main() {
 		c.ShouldBindJSON(&userExists)
 		err = collection.FindOne(context.TODO(), bson.M{"username": user.Username}).Decode(&userExists)
 		if err != nil {
-			if mongo.ErrNoDocuments != err {
+			if !errors.Is(err, mongo.ErrNoDocuments) {
 				log.Fatal(err)
 			}
 		}
@@ -794,9 +802,7 @@ func main() {
 			"data": user,
 		})
 	})
-
 	// support (ticket system)
-
 	permissionUserAdminRouter.DELETE("/api/tickets/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		objID, _ := primitive.ObjectIDFromHex(id)
